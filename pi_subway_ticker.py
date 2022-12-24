@@ -6,7 +6,7 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 from threading import Thread
 cwd = sys.argv[0]
 if '/' in cwd:
-    mvwd = cwd.split('pi_subway.py')[0]
+    mvwd = cwd.split('pi_subway_ticker.py')[0]
     os.chdir(mvwd)
 
 sys.path.append('additional_pyy_files')    
@@ -83,62 +83,65 @@ class nyc_subway():
     def display(self):
         first_2 = True
         while True:
-            for i in range(35):
-                self.station_load()
-                self.canvas.Clear()
-                self.textColor = graphics.Color(237, 234, 222)
+            try:
+                for i in range(35):
+                    self.station_load()
+                    self.canvas.Clear()
+                    self.textColor = graphics.Color(237, 234, 222)
 
-                graphics.DrawText(self.canvas, 
-                                self.font, 
-                                self.station_pos, 
-                                7, 
-                                self.waiting_color, 
-                                self.station)
-        
-                if len(self.station) >= 16:
-                    if int(self.station_pos) == 64:
-                        time.sleep(5)
-                        self.station_pos -= 1
-                    elif self.station_pos > (65 - len(self.station)):
-                        self.station_pos -= 1
-                    elif self.station_pos == (65 - len(self.station)):
+                    graphics.DrawText(self.canvas, 
+                                    self.font, 
+                                    self.station_pos, 
+                                    7, 
+                                    self.waiting_color, 
+                                    self.station)
+            
+                    if len(self.station) >= 16:
+                        if int(self.station_pos) == 64:
+                            time.sleep(5)
+                            self.station_pos -= 1
+                        elif self.station_pos > (65 - len(self.station)):
+                            self.station_pos -= 1
+                        elif self.station_pos == (65 - len(self.station)):
+                            self.station_pos = 65
+                            self.location_restart()
+                    else:
                         self.station_pos = 65
-                        self.location_restart()
-                else:
-                    self.station_pos = 65
-                
+                    
+                    if first_2 is True:
+                        self.train_dispaly(self.train_1,
+                                        self.train_1_time,
+                                        self.train_1_direction,
+                                        True,
+                                        )
+                        
+                        self.train_dispaly(self.train_2,
+                                        self.train_2_time,
+                                        self.train_2_direction,
+                                        False,
+                                        )
+                    if first_2 is False:
+                        self.train_dispaly(self.train_3,
+                                        self.train_3_time,
+                                        self.train_3_direction,
+                                        True,
+                                        )
+                        
+                        self.train_dispaly(self.train_4,
+                                        self.train_4_time,
+                                        self.train_4_direction,
+                                        False,
+                                        )
+                    time.sleep(.7)
+                    self.canvas = self.matrix.SwapOnVSync(self.canvas)
                 if first_2 is True:
-                    self.train_dispaly(self.train_1,
-                                    self.train_1_time,
-                                    self.train_1_direction,
-                                    True,
-                                    )
-                    
-                    self.train_dispaly(self.train_2,
-                                    self.train_2_time,
-                                    self.train_2_direction,
-                                    False,
-                                    )
-                if first_2 is False:
-                    self.train_dispaly(self.train_3,
-                                    self.train_3_time,
-                                    self.train_3_direction,
-                                    True,
-                                    )
-                    
-                    self.train_dispaly(self.train_4,
-                                    self.train_4_time,
-                                    self.train_4_direction,
-                                    False,
-                                    )
-                time.sleep(.7)
-                self.canvas = self.matrix.SwapOnVSync(self.canvas)
-            if first_2 is True:
-                first_2 = False
-                self.location_restart()
-            elif first_2 is False:
-                first_2 = True
-                self.location_restart()
+                    first_2 = False
+                    self.location_restart()
+                elif first_2 is False:
+                    first_2 = True
+                    self.location_restart()
+            except:
+                pass
 
     def train_dispaly(self,train,train_time,direction,top):
 
@@ -303,21 +306,29 @@ class nyc_subway():
             return graphics.Color(0, 0, 0)
         
     def station_load(self):
-        new_station = common.config_return('station')
-        if new_station != self.previous_station:
+        try:
+            new_station = common.config_return('station')
             station_check = common.station_check(new_station)
             if station_check is True:
-                self.station = new_station
-                self.previous_station = new_station
-                self.train_loading()
-                self.station_pos = 65
-                note = 'New Station: ' + self.station
-                common.log_add(note,'Display',2)
+                if new_station != self.previous_station:
+                    self.station = new_station
+                    self.previous_station = new_station
+                    self.train_loading()
+                    self.station_pos = 65
+                    note = 'New Station: ' + self.station
+                    common.log_add(note,'Display',2)
+                else:
+                    note = 'No Station Change'
+                    common.log_add(note,'Display',4)
             else:
-                self.general_error('Check station','spelling')
-        else:
-            note = 'No Station Change'
-            common.log_add(note,'Display',4)
+                note = 'ERROR: Station check result false, check spelling. Station in config: ' + new_station
+                common.log_add(note,'Display',1)
+                self.general_error(('Error identifying the station in your config file: ' + new_station),'config file')
+                
+        except:
+            note = 'ERROR: Station load'
+            common.log_add(note,'Display',1)
+        
         
     def general_error(self,line_1,line_2):
         self.station = 'Error!!!'
@@ -338,12 +349,12 @@ class nyc_subway():
         self.add_number_3 = 0
         self.add_number_4 = 0
         
-        note = 'Error Loading Train Info, retrying in 15 seconds'
-        common.log_add(note,'Display',1)
-        time.sleep(15)
-        note = 'Reattempting station load'
-        common.log_add(note,'Display',4)
-        self.station_load()
+        #note = 'Error Loading Train Info, retrying in 15 seconds'
+        #common.log_add(note,'Display',1)
+        #time.sleep(15)
+        #note = 'Reattempting station load'
+        #common.log_add(note,'Display',4)
+        #self.station_load()
             
     def train_loading(self):
         self.train_1 = ''
