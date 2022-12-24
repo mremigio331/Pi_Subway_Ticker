@@ -267,7 +267,7 @@ class nyc_subway():
         self.waiting_color = graphics.Color(0, 147, 60)
         self.in_circle_color = graphics.Color(0, 0, 0)
         self.error_color = graphics.Color(255,0,0)
-        self.font.LoadFont('/home/pi/rpi-rgb-led-matrix/fonts/4x6.bdf') 
+        self.font.LoadFont('rgbmatrix/4x6.bdf') 
         self.canvas = self.matrix.CreateFrameCanvas() 
         self.station_pos = 65
         note = 'Loaded Configs'
