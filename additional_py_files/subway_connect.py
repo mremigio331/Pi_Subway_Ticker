@@ -7,9 +7,12 @@ from datetime import datetime, timezone
 import additional_py_files.common as common
 
 import sys
-sys.path.append('/home/pi/.local/lib/python3.9/site-packages/google/transit')
-import gtfs_realtime_pb2
-#from google.transit import gtfs_realtime_pb2
+try:
+    from google.transit import gtfs_realtime_pb2
+except:
+    sys.path.append('/home/pi/.local/lib/python3.9/site-packages/google/transit')
+    import gtfs_realtime_pb2
+#
 
 from google.protobuf.json_format import MessageToDict
 
