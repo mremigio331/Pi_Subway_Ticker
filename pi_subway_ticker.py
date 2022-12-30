@@ -38,14 +38,52 @@ class draw():
         graphics.DrawLine(canvas, x+3, y+7, x+5, y+7, color)
         graphics.DrawLine(canvas, x+4, y+8, x+4, y+8, color)
 
-class nyc_subway():
+class nyc_subway(): 
     
     def run(self):
         self.configs()
         Thread(target = self.data_pull).start()
         Thread(target = self.display).start()
+        Thread(target = self.cycle).start()
+
+    def cycle(self):
+        while True:
+            cycle_check = common.config_return('cycle')
+            note = 'Cycle is set to ' + str(cycle_check)
+            common.log_add(note,'System',1)
+            if cycle_check == 'True':
+                self.cycle_station = sc.random_station()
+                note = 'Random station selected: ' + self.cycle_station
+                common.log_add(note,'System',1)
+                
+            sleep_time = common.config_return('cycle_time')
+            note = 'Cycle time set to ' + sleep_time + 'minutes.'
+            common.log_add(note,'System',1)
+            time.sleep(int(sleep_time) * 60)
+            
+    def restart(self):
+        self.run_status = False
+        self.run_status = True
+        while self.run_status is True:
+            self.configs()
+            Thread(target = self.data_pull).start()
+            Thread(target = self.display).start()
+        
+        
+    def thread_restart(self):
+        self.Thread(target = self.data_pull).stop()
+        self.Thread(target = self.display).stop()
+        note = 'Stopping thread'
+        common.log_add(note,'System',1)
+        self.Thread(target = self.data_pull).start()
+        self.Thread(target = self.display).start()
+        note = 'Restarted thread'
+        common.log_add(note,'System',1)
+        
+        
         
     def data_pull(self):
+        data_pull_errors = 0
         while True:
             try:
                 data = sc.all_train_data()
@@ -67,17 +105,31 @@ class nyc_subway():
                 self.train_4_time = (trains[3]['arrival'])
                 self.train_4_direction = trains[3]['final_dest']
                 self.station_load()
+                data_pull_errors = 0
             except Exception as error:
-                note = str(error)
-                common.log_add(note,'Display',1)
-                self.general_error('Error Loading','Data')
-                self.station_load()
+                if data_pull_errors <= 2:
+                    data_pull_errors += 1
+                    note = str(data_pull_errors) + ' errors.' + str(error)
+                    common.log_add(note,'Display',1)
+                    self.general_error('Error Loading',str(data_pull_errors))
+                    self.station_load()
+                if data_pull_errors == 3:
+                    note = str('Max amount of data_pull_errors reached. Shutting down')
+                    common.log_add(note,'Display',1)
+                    self.run_status = False
+                    
+                    
+                
+                
             
     def location_restart(self):
         self.add_number_1 = -1
         self.add_number_2 = -1
         self.add_number_3 = -1
         self.add_number_4 = -1
+        
+    #def location_change(top):
+        
         
 
     def display(self):
@@ -252,6 +304,7 @@ class nyc_subway():
 
 
     def configs(self):
+        self.run_status = True
         self.previous_station = ''
         self.station_load()
         #self.train_loading()
@@ -270,6 +323,7 @@ class nyc_subway():
         self.font.LoadFont('rgbmatrix/4x6.bdf') 
         self.canvas = self.matrix.CreateFrameCanvas() 
         self.station_pos = 65
+        self.station_load_error = False
         note = 'Loaded Configs'
         common.log_add(note,'Display',2)
 
@@ -307,8 +361,13 @@ class nyc_subway():
         
     def station_load(self):
         try:
-            new_station = common.config_return('station')
-            station_check = common.station_check(new_station)
+            cycle_check = common.config_return('cycle')
+            if cycle_check == 'True':
+                new_station = self.cycle_station
+                station_check = common.station_check(new_station)
+            else:
+                new_station = common.config_return('station')
+                station_check = common.station_check(new_station)
             if station_check is True:
                 if new_station != self.previous_station:
                     self.station = new_station
@@ -318,12 +377,13 @@ class nyc_subway():
                     note = 'New Station: ' + self.station
                     common.log_add(note,'Display',2)
                 else:
+                    self.station = new_station
                     note = 'No Station Change'
                     common.log_add(note,'Display',4)
             else:
+                self.station_load_error = True
                 note = 'ERROR: Station check result false, check spelling. Station in config: ' + new_station
                 common.log_add(note,'Display',1)
-                self.general_error(('Error identifying the station in your config file: ' + new_station),'config file')
                 
         except:
             note = 'ERROR: Station load'

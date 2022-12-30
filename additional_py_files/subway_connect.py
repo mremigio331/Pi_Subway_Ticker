@@ -5,6 +5,8 @@ import requests
 import os
 from datetime import datetime, timezone
 import additional_py_files.common as common
+import random
+
 
 import sys
 try:
@@ -128,3 +130,12 @@ def data_dump(train_info):
     except:
         note = 'ERROR converting train data to a json'
         common.log_add(note,'API',1)
+        
+def random_station():
+    with open('data/stations.txt') as f:
+        stations = [line.strip() for line in f]
+    station = random.choice(stations)
+    return station
+    
+        
+    
