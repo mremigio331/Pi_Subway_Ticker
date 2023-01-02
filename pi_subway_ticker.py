@@ -57,7 +57,7 @@ class nyc_subway():
                 common.log_add(note,'System',1)
                 
             sleep_time = common.config_return('cycle_time')
-            note = 'Cycle time set to ' + sleep_time + 'minutes.'
+            note = 'Cycle time set to ' + sleep_time + ' minutes.'
             common.log_add(note,'System',1)
             time.sleep(int(sleep_time) * 60)
             
@@ -340,7 +340,7 @@ class nyc_subway():
             return graphics.Color(167, 169, 172)
         elif train in ['N','Q','R','W']:
             return  graphics.Color(252, 204, 10)
-        elif train in ['S']:
+        elif train in ['S','SF']:
             return graphics.Color(128, 129, 131)
         elif train in ['1','2','3']:
             return graphics.Color(238, 53, 46)
