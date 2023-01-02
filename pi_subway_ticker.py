@@ -340,7 +340,7 @@ class nyc_subway():
             return graphics.Color(167, 169, 172)
         elif train in ['N','Q','R','W']:
             return  graphics.Color(252, 204, 10)
-        elif train in ['S','SF']:
+        elif train in ['S','FS']:
             return graphics.Color(128, 129, 131)
         elif train in ['1','2','3']:
             return graphics.Color(238, 53, 46)
