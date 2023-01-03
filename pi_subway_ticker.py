@@ -42,9 +42,16 @@ class nyc_subway():
     
     def run(self):
         self.configs()
-        Thread(target = self.data_pull).start()
-        Thread(target = self.display).start()
-        Thread(target = self.cycle).start()
+        api_check = common.api_keys_check()
+        note = 'API Check = ' + str(api_check)
+        common.log_add(note,'System',1)
+        if api_check == True:
+            self.station_load()
+            Thread(target = self.data_pull).start()
+            Thread(target = self.display).start()
+            Thread(target = self.cycle).start()
+        elif api_check == False:
+            self.api_error()
 
     def cycle(self):
         while True:
@@ -104,6 +111,7 @@ class nyc_subway():
                 self.train_4 = trains[3]['route']
                 self.train_4_time = (trains[3]['arrival'])
                 self.train_4_direction = trains[3]['final_dest']
+                self.loading = False
                 self.station_load()
                 data_pull_errors = 0
             except Exception as error:
@@ -119,19 +127,55 @@ class nyc_subway():
                     self.run_status = False
                     
                     
-                
-                
-            
     def location_restart(self):
         self.add_number_1 = -1
         self.add_number_2 = -1
         self.add_number_3 = -1
         self.add_number_4 = -1
         
-    #def location_change(top):
+    def api_error(self):
+        top_line = '   **Error**'
+        second_line = 'API key load error. Please enter api key in trains.conf file.'
+        text_color = self.error_color
+        second_line_add_number = 0
+        start_number = 0
+        end_number = 15
+        lines = common.random_trains()
         
         
-
+        while True:
+            self.canvas.Clear()
+            graphics.DrawText(self.canvas, self.font, 64, 7, text_color, top_line)
+            if (end_number + second_line_add_number) < (len(second_line) + 13):
+                print_text = second_line[(start_number + second_line_add_number):(end_number + second_line_add_number)]
+                graphics.DrawText(self.canvas, self.font, 64, 17, text_color, print_text)
+                second_line_add_number += 1
+            else: 
+                print_text = second_line[(start_number + second_line_add_number):(end_number + second_line_add_number)]
+                graphics.DrawText(self.canvas, self.font, 54, 17, text_color, print_text)
+                second_line_add_number = 0
+            self.subway_line_print(lines)
+            time.sleep(1)
+            self.canvas = self.matrix.SwapOnVSync(self.canvas)
+            
+    def subway_line_print(self,lines):
+        line_draw = draw()
+        circle_location = 66
+        text_location = 69
+        for x in lines:
+            circle_color = self.train_colors(x)
+            if len(x) == 1:
+                line_draw.local_train(self.canvas, circle_location, 20, circle_color)
+                graphics.DrawText(self.canvas, self.font, text_location, 27, self.in_circle_color, x)        
+                circle_location += 10
+                text_location += 10
+            else:
+                x = x[0]
+                line_draw.express_train(self.canvas, circle_location, 20, circle_color)
+                graphics.DrawText(self.canvas, self.font, text_location, 27, self.in_circle_color, x)        
+                circle_location += 10
+                text_location += 10
+            
     def display(self):
         first_2 = True
         while True:
@@ -140,6 +184,12 @@ class nyc_subway():
                     self.station_load()
                     self.canvas.Clear()
                     self.textColor = graphics.Color(237, 234, 222)
+                    if self.loading is True:
+                        lines = common.random_trains()
+                        
+                        self.subway_line_print(lines)
+                    else:
+                        pass
 
                     graphics.DrawText(self.canvas, 
                                     self.font, 
@@ -192,6 +242,10 @@ class nyc_subway():
                 elif first_2 is False:
                     first_2 = True
                     self.location_restart()
+                else:
+                    pass
+                
+                
             except:
                 pass
 
@@ -214,22 +268,25 @@ class nyc_subway():
         else:
             local = False
         
-        if local is True:
-            if top is True:
-                line_draw.local_train(self.canvas, 64, 10, circle_color)
-                graphics.DrawText(self.canvas, self.font, 67, height, self.in_circle_color, train)
-            if top is False:
-                line_draw.local_train(self.canvas, 64, 20, circle_color)
-                graphics.DrawText(self.canvas, self.font, 67, height, self.in_circle_color, train)
-        
-        if local is False:
-            if top is True:
-                line_draw.express_train(self.canvas, 64, 10, circle_color)
-                graphics.DrawText(self.canvas, self.font, 67, height, self.in_circle_color, train)
-            if top is False:
-                line_draw.express_train(self.canvas, 64, 20, circle_color)
-                graphics.DrawText(self.canvas, self.font, 67, height, self.in_circle_color, train)
-        
+        if self.loading is True:
+            pass
+        else:
+            if local is True:
+                if top is True:
+                    line_draw.local_train(self.canvas, 64, 10, circle_color)
+                    graphics.DrawText(self.canvas, self.font, 67, height, self.in_circle_color, train)
+                if top is False:
+                    line_draw.local_train(self.canvas, 64, 20, circle_color)
+                    graphics.DrawText(self.canvas, self.font, 67, height, self.in_circle_color, train)
+            
+            if local is False:
+                if top is True:
+                    line_draw.express_train(self.canvas, 64, 10, circle_color)
+                    graphics.DrawText(self.canvas, self.font, 67, height, self.in_circle_color, train)
+                if top is False:
+                    line_draw.express_train(self.canvas, 64, 20, circle_color)
+                    graphics.DrawText(self.canvas, self.font, 67, height, self.in_circle_color, train)
+            
         if train_time == 0:
             text_color = self.arrival_color
         elif len(time) == 4:
@@ -305,9 +362,9 @@ class nyc_subway():
 
     def configs(self):
         self.run_status = True
+        self.loading = True
         self.previous_station = ''
-        self.station_load()
-        #self.train_loading()
+        self.train_loading()
         self.options = RGBMatrixOptions()
         self.options.rows = 32
         self.options.cols = 64
@@ -422,7 +479,7 @@ class nyc_subway():
         self.train_1_direction = 'Loading...'
         self.train_2 = ''
         self.train_2_time = ''
-        self.train_2_direction = 'Loading...'
+        self.train_2_direction = ''
         self.train_3 = ''
         self.train_3_time = ''
         self.train_3_direction = 'Loading...'
@@ -433,6 +490,7 @@ class nyc_subway():
         self.add_number_2 = 0
         self.add_number_3 = 0
         self.add_number_4 = 0
+        self.loading = True
         note = 'Train Info Loading'
         common.log_add(note,'Display',4)
         

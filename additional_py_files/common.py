@@ -1,6 +1,7 @@
 #!/bin/env python
 from datetime import datetime
 import sys
+import random
 from os.path import exists
 sys.path.append('/home/pi/.local/lib/python3.9/site-packages/')
 
@@ -133,3 +134,30 @@ def log_level():
             f.close()
             print(full_note)
             sys.exit()
+            
+def api_keys_check():
+    try:
+        api_key = config_return('api_key')
+        return True
+    except:
+        return False
+    
+def random_trains():
+    all_trains =  ['A','C','E',
+                   'B','D','F','FX','M',
+                   'G','GS',
+                   'J','Z',
+                   'L',
+                   'N','Q','R','W',
+                   'S','FS',
+                   '1','2','3',
+                   '4','5','6','6X',
+                   '7','7X',
+                   'T']
+    train_return = []
+    for x in range(6):
+        train_line = str(random.choice(all_trains))
+        all_trains.remove(train_line)
+        train_return.append(train_line)
+        
+    return train_return
