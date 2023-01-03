@@ -3,6 +3,8 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install python3-pip -y
 sudo apt install libatlas-base-dev -y
 pip install -r requirements.txt
+pip install --upgrade google-api-python-client
+pip install --upgrade gtfs-realtime-bindings
 cd
 sudo apt-get install -y git python3-dev python3-pillow
 git clone https://github.com/hzeller/rpi-rgb-led-matrix.git
