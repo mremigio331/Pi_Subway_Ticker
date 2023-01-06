@@ -18,6 +18,5 @@ You will need to create an account with the MTA in order to pull live data. To d
 
 ## Future Plans
 * Create a website that is hosted locally to change the station and see all MTA info
-* Option to cycle through stations rather than have staying on one
-* More robuse errors to better identify what when wrong
+* More robust errors to better identify what when wrong
 * Support for LIRR and Metro North
