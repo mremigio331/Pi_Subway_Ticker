@@ -5,6 +5,31 @@ import random
 from os.path import exists
 sys.path.append('/home/pi/.local/lib/python3.9/site-packages/')
 
+def api_keys_check():
+    try:
+        api_key = config_return('api_key')
+        return True
+    except:
+        return False
+
+def config_load():
+    try:
+        configs = []
+        with open('trains.conf') as f:
+            general_configs = [line.strip() for line in f]
+        for x in general_configs:
+            configs.append(x)
+        return configs
+    except:
+        note = 'ERROR loading configs'
+        log_add(note,'Common',1)
+
+def config_return(conf):
+    configs = config_load()
+    for x in configs:
+        if conf in x:
+            element = x.split(' = ')[1]
+            return str(element)
 
 def log_add(note,log_from,level):
     logging_level = log_level()  # identifies what the log level is in the config file
@@ -33,7 +58,6 @@ def log_add(note,log_from,level):
                 f.write(full_note + '\n')
                 f.close()
             print(full_note)
-
         if error_log_file_exists is False:  # if a log file does not exist a new file will be created
             with open(error_logs, 'w') as f:
                 now = datetime.now().isoformat()[:-3] + 'Z'
@@ -41,9 +65,7 @@ def log_add(note,log_from,level):
                 full_note = str(full_note)
                 f.write(full_note + '\n')
                 f.close()
-
             print(full_note)
-
     if int(level) <= int(logging_level):  # will log information if level is smaller or equal to the config log level
         now = datetime.now().isoformat()[:-3] + 'Z'
         full_note = '[' + log_from + ' Log ' + now + '] ' + note
@@ -52,9 +74,7 @@ def log_add(note,log_from,level):
             with open(log_file, 'a') as f:
                 f.write(full_note + '\n')
                 f.close()
-        
         print(full_note)
-
     if int(level) == 1:
         now = datetime.now().isoformat()[:-3] + 'Z'
         full_note = '[' + log_from + ' Log ' + now + '] ' + note
@@ -65,52 +85,15 @@ def log_add(note,log_from,level):
                 f.close()
         print(full_note)
     
-    
-def config_load():
-    try:
-        configs = []
-        with open('trains.conf') as f:
-            general_configs = [line.strip() for line in f]
-        for x in general_configs:
-            configs.append(x)
-        return configs
-    except:
-        note = 'ERROR loading configs'
-        log_add(note,'Common',1)
-
-def config_return(conf):
-    configs = config_load()
-    for x in configs:
-        if conf in x:
-            element = x.split(' = ')[1]
-            return str(element)
-        
-def stations_load():
-    stations = []
-    with open('data/stations.txt') as f:
-        stations = [line.strip() for line in f]
-    return stations
-
-def station_check(station):
-    all_stations = stations_load()
-    if station in all_stations:
-        return True
-    else:
-        return False
-    
 def log_level():
     lines = config_load()
     log_levels = ['VERBOSE', 'LOG+', 'INFO', 'ERROR', 'OFF']
-
     for x in lines:
-
         if 'log_level' in x:
             log_level = x.split(' = ')[1]
         if 'log_file_name' in x:
             log_file = x.split('=')[1].strip()
-
     if log_level in log_levels:
-
         if log_level == 'VERBOSE':
             return 4
         elif log_level == 'LOG+':
@@ -121,7 +104,6 @@ def log_level():
             return 1
         elif log_level == 'OFF':
             return 0
-
     else:
         with open(log_file, 'a') as f:
             now = datetime.utcnow().isoformat()[:-3] + 'Z'
@@ -134,14 +116,7 @@ def log_level():
             f.close()
             print(full_note)
             sys.exit()
-            
-def api_keys_check():
-    try:
-        api_key = config_return('api_key')
-        return True
-    except:
-        return False
-    
+
 def random_trains():
     all_trains =  ['A','C','E',
                    'B','D','F','FX','M',
@@ -159,5 +134,17 @@ def random_trains():
         train_line = str(random.choice(all_trains))
         all_trains.remove(train_line)
         train_return.append(train_line)
-        
     return train_return
+
+def station_check(station):
+    all_stations = stations_load()
+    if station in all_stations:
+        return True
+    else:
+        return False
+           
+def stations_load():
+    stations = []
+    with open('data/stations.txt') as f:
+        stations = [line.strip() for line in f]
+    return stations
