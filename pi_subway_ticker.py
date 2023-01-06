@@ -68,27 +68,6 @@ class nyc_subway():
             common.log_add(note,'System',1)
             time.sleep(int(sleep_time) * 60)
             
-    def restart(self):
-        self.run_status = False
-        self.run_status = True
-        while self.run_status is True:
-            self.configs()
-            Thread(target = self.data_pull).start()
-            Thread(target = self.display).start()
-        
-        
-    def thread_restart(self):
-        self.Thread(target = self.data_pull).stop()
-        self.Thread(target = self.display).stop()
-        note = 'Stopping thread'
-        common.log_add(note,'System',1)
-        self.Thread(target = self.data_pull).start()
-        self.Thread(target = self.display).start()
-        note = 'Restarted thread'
-        common.log_add(note,'System',1)
-        
-        
-        
     def data_pull(self):
         data_pull_errors = 0
         while True:
@@ -125,8 +104,7 @@ class nyc_subway():
                     note = str('Max amount of data_pull_errors reached. Shutting down')
                     common.log_add(note,'Display',1)
                     self.run_status = False
-                    
-                    
+                                 
     def location_restart(self):
         self.add_number_1 = -1
         self.add_number_2 = -1
@@ -359,12 +337,10 @@ class nyc_subway():
             else:
                 graphics.DrawText(self.canvas, self.font, 74, height, text_color, direction)
 
-
     def configs(self):
         self.run_status = True
         self.loading = True
         self.previous_station = ''
-        self.train_loading()
         self.options = RGBMatrixOptions()
         self.options.rows = 32
         self.options.cols = 64
@@ -372,17 +348,22 @@ class nyc_subway():
         self.options.parallel = 1
         self.options.hardware_mapping = 'adafruit-hat'
         self.matrix = RGBMatrix(options=self.options)
-        self.font = graphics.Font()
-        self.arrival_color = graphics.Color(237, 132, 40)
-        self.waiting_color = graphics.Color(0, 147, 60)
-        self.in_circle_color = graphics.Color(0, 0, 0)
-        self.error_color = graphics.Color(255,0,0)
-        self.font.LoadFont('rgbmatrix/4x6.bdf') 
+        self.train_loading()
+        self.fonts()
         self.canvas = self.matrix.CreateFrameCanvas() 
         self.station_pos = 65
         self.station_load_error = False
         note = 'Loaded Configs'
         common.log_add(note,'Display',2)
+        
+    def fonts(self):
+        self.font = graphics.Font()
+        self.arrival_color = graphics.Color(237, 132, 40)
+        self.waiting_color = graphics.Color(0, 147, 60)
+        self.in_circle_color = graphics.Color(0, 0, 0)
+        self.error_color = graphics.Color(255,0,0)
+        self.font.LoadFont('rgbmatrix/4x6.bdf')
+        
 
     def train_colors(self,train):
         if train in ['A','C','E']:
@@ -445,8 +426,7 @@ class nyc_subway():
         except:
             note = 'ERROR: Station load'
             common.log_add(note,'Display',1)
-        
-        
+              
     def general_error(self,line_1,line_2):
         self.station = 'Error!!!'
         self.train_1 = '!'
@@ -465,13 +445,6 @@ class nyc_subway():
         self.add_number_2 = 0
         self.add_number_3 = 0
         self.add_number_4 = 0
-        
-        #note = 'Error Loading Train Info, retrying in 15 seconds'
-        #common.log_add(note,'Display',1)
-        #time.sleep(15)
-        #note = 'Reattempting station load'
-        #common.log_add(note,'Display',4)
-        #self.station_load()
             
     def train_loading(self):
         self.train_1 = ''
@@ -485,7 +458,7 @@ class nyc_subway():
         self.train_3_direction = 'Loading...'
         self.train_4 = ''
         self.train_4_time = ''
-        self.train_4_direction = 'Loading...'
+        self.train_4_direction = ''
         self.add_number_1 = 0
         self.add_number_2 = 0
         self.add_number_3 = 0
@@ -494,10 +467,6 @@ class nyc_subway():
         note = 'Train Info Loading'
         common.log_add(note,'Display',4)
         
-            
-        
-        
-
 
 sub = nyc_subway()
 sub.run()
