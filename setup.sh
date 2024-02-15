@@ -2,7 +2,12 @@
 sudo apt update && sudo apt upgrade -y
 sudo apt install python3-pip -y
 sudo apt install libatlas-base-dev -y
-pip install -r requirements.txt
+sudo apt install python3-google-api-python-client -y 
+sudo apt install python3-gtfs-realtime-bindings -y 
+sudo apt install python3-protobuf -y 
+sudo apt install python3-pandas -y
+sudo apt install python3-protobuf -y
+sudo apt install python3-requests -y
 pip install --upgrade google-api-python-client
 pip install --upgrade gtfs-realtime-bindings
 cd
