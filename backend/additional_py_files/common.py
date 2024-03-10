@@ -2,13 +2,24 @@
 from datetime import datetime
 import sys
 import random
+import json
+import logging
 from os.path import exists
 sys.path.append('/home/pi/.local/lib/python3.9/site-packages/')
 
+logging.basicConfig(
+    level=logging.INFO,  # Set the logging level to INFO
+    format='%(asctime)s - %(levelname)s - %(message)s',  # Define the logging format
+    filename='app.log',  # Specify the filename for the log file
+    filemode='w'  # Set the file mode to write ('w' will overwrite the file each time)
+)
+
 def api_keys_check():
     try:
-        api_key = config_return('api_key')
-        return True
+        if config_load_v2()['api_key'] != '':
+            return True
+        else:
+            return False
     except:
         return False
 
@@ -20,6 +31,23 @@ def config_load():
         for x in general_configs:
             configs.append(x)
         return configs
+    except:
+        note = 'ERROR loading configs'
+        log_add(note,'Common',1)
+
+def open_json_file(file_name):
+    try:
+        with open(file_name, 'r') as json_file:
+            json_data = json.load(json_file)
+        return json_data
+    except:
+        note = f'Error opening up {file_name}'
+        log_add(note,'Common',1)
+
+
+def config_load_v2():
+    try:
+        return open_json_file('trains_config.json')
     except:
         note = 'ERROR loading configs'
         log_add(note,'Common',1)
@@ -148,3 +176,33 @@ def stations_load():
     with open('data/stations.txt') as f:
         stations = [line.strip() for line in f]
     return stations
+
+def stations_load_v2():
+    try:
+        return open_json_file('trains_config.json').keys()
+    except:
+        note = 'There was an issue opening up the train stations'
+        log_add(note,'Common',1)
+        return False
+
+
+def all_data_to_json(loading, station, next_four, all_trains_data):
+    data =  {
+        'timestamp': get_current_time(),
+        'loading': loading,
+        'current_station' : station,
+        'next_four': next_four,
+        'all_trains_data': all_trains_data
+    }
+
+    file_path = 'data/export_data.json'
+
+    with open(file_path, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
+
+
+def get_current_time():
+    current_time = datetime.now()
+    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+    
+    return formatted_time

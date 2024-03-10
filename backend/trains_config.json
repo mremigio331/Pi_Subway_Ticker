@@ -1,0 +1,10 @@
+{
+    "api_key": "",
+    "station": "161 St-Yankee Stadium - D11",
+    "cycle": false,
+    "cycle_time": 10,
+    "log_level": "VERBOSE",
+    "create_log_file" : false,
+    "log_file_name" : "data/pi_subway_ticker.log",
+    "log_error_file_name" : "data/pi_subway_ticker_errors.log"
+}

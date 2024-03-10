@@ -4,11 +4,12 @@ import sys
 import os
 from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 from threading import Thread
-cwd = sys.argv[0]
-if '/' in cwd:
-    mvwd = cwd.split('pi_subway_ticker.py')[0]
-    os.chdir(mvwd)
-sys.path.append('additional_pyy_files')    
+
+# cwd = sys.argv[0]
+# if '/' in cwd:
+#     mvwd = cwd.split('pi_subway_ticker.py')[0]
+#     os.chdir(mvwd)
+sys.path.append('additional_py_files')    
 import additional_py_files.subway_connect as sc
 import additional_py_files.common as common
 
@@ -28,7 +29,7 @@ class draw():
     def express_train(self, canvas,  x, y, color):
         # Draw express train diamond
         graphics.DrawLine(canvas, x+4, y+0, x+4, y+0, color)
-        graphics.DrawLine(canvas, x+3, y+1, x+5, y+1, color)
+        graphics.DrawLine(canvas, x+3, y+1, x+5, y+1, color)     
         graphics.DrawLine(canvas, x+2, y+2, x+6, y+2, color)
         graphics.DrawLine(canvas, x+1, y+3, x+7, y+3, color)
         graphics.DrawLine(canvas, x+0, y+4, x+8, y+4, color)
@@ -99,8 +100,8 @@ class nyc_subway():
         data_pull_errors = 0
         while True:
             try:
-                data = sc.all_train_data()
-                trains = sc.next_train_in(self.station,data)
+                self.all_train_data = sc.all_train_data()
+                trains = sc.next_train_in(self.station, self.all_train_data)
                 trains.sort(key=lambda k : k['arrival'])
                 trains = trains[0:4]
                 for x in trains:
@@ -240,8 +241,42 @@ class nyc_subway():
             Thread(target = self.data_pull).start()
             Thread(target = self.display).start()
             Thread(target = self.cycle).start()
+            Thread(target = self.export_all_data).start()
         elif api_check == False:
             self.api_error()
+
+    def export_all_data(self):
+        while self.run_status == True:
+            self.next_four_trains = {
+                'train_1': {
+                    'train': self.train_1,
+                    'train_time': self.train_1_time,
+                    'train_direction': self.train_1_direction
+                },
+                'train_2': {
+                    'train': self.train_2,
+                    'train_time': self.train_2_time,
+                    'train_direction': self.train_2_direction
+                },
+                'train_3': {
+                        'train': self.train_3,
+                        'train_time': self.train_3_time,
+                        'train_direction': self.train_3_direction
+                    },
+                'train_4': {
+                        'train': self.train_4,
+                        'train_time': self.train_4_time,
+                        'train_direction': self.train_4_direction
+                    }
+            }
+            try:
+                common.all_data_to_json(self.loading, self.station, self.next_four_trains, self.all_train_data)
+                time.sleep(5)
+
+            except Exception as e:
+                note = f'Error saving all data to json: {str(e)}'
+                common.log_add(note,'System',2)
+
             
     def station_load(self):
         try:
@@ -437,6 +472,8 @@ class nyc_subway():
         self.add_number_2 = 0
         self.add_number_3 = 0
         self.add_number_4 = 0
+        self.all_train_data = {}
+        self.next_four_trains = {}
         self.loading = True
         note = 'Train Info Loading'
         common.log_add(note,'Display',4)
