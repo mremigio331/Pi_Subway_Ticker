@@ -9,7 +9,7 @@ from threading import Thread
 # if '/' in cwd:
 #     mvwd = cwd.split('pi_subway_ticker.py')[0]
 #     os.chdir(mvwd)
-sys.path.append('additional_py_files')    
+sys.path.append('additional_py_files')
 import additional_py_files.subway_connect as sc
 import additional_py_files.common as common
 from additional_py_files.pi_board_draw import draw

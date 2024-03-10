@@ -7,13 +7,6 @@ import logging
 from os.path import exists
 sys.path.append('/home/pi/.local/lib/python3.9/site-packages/')
 
-logging.basicConfig(
-    level=logging.INFO,  # Set the logging level to INFO
-    format='%(asctime)s - %(levelname)s - %(message)s',  # Define the logging format
-    filename='app.log',  # Specify the filename for the log file
-    filemode='w'  # Set the file mode to write ('w' will overwrite the file each time)
-)
-
 def api_keys_check():
     try:
         if config_load_v2()['api_key'] != '':
@@ -213,3 +206,7 @@ def get_current_time():
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
     
     return formatted_time
+
+def update_json(filename, updated_data):
+    with open(filename, 'w') as json_file:
+        json.dump(updated_data, json_file, indent=4)
