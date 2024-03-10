@@ -1,0 +1,46 @@
+{
+  "name": "pi-subway-ticker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "start": "webpack server --mode development",
+    "dev": "webpack-dev-server",
+    "format": "npx prettier --write ."
+  },
+  "keywords": [
+    "webpack",
+    "react"
+  ],
+  "author": "Matthew Remigio",
+  "license": "ISC",
+  "dependencies": {
+    "@cloudscape-design/components": "^3.0.382",
+    "@cloudscape-design/global-styles": "^1.0.12",
+    "axios": "^1.5.0",
+    "express": "^4.18.2",
+    "leaflet": "^1.9.4",
+    "leaflet-omnivore": "^0.3.4",
+    "module": "^1.1.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-query": "^3.39.3",
+    "react-router-dom": "^6.15.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.16",
+    "@babel/preset-env": "^7.13.15",
+    "@babel/preset-react": "^7.13.13",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^5.2.4",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.3.1",
+    "prettier": "3.0.3",
+    "react-cookie": "^4.1.1",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.35.1",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.15.1"
+  }
+}
