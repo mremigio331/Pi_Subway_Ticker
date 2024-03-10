@@ -17,7 +17,7 @@ from google.protobuf.json_format import MessageToDict
 def api_pull(line,link):
     note = 'Conducting API pull of ' + line
     common.log_add(note,'API',4)
-    api_key = str(common.config_return('api_key'))
+    api_key = common.config_load_v2()['api_key']
     feed = gtfs_realtime_pb2.FeedMessage()
     response = requests.get(link, headers={'x-api-key': str(api_key)})
     feed.ParseFromString(response.content)
@@ -102,12 +102,53 @@ def next_train_in(station,data):
     note = 'Next train in complete'
     common.log_add(note,'API',3)
     return train_stops
+
+def next_train_in_v2(station,data):
+    station_object = common.build_station_element(station)
+    train_stops = []
+    now = datetime.now()
+    note = 'Time now: ' + str(now)
+    common.log_add(note,'API',3)
+    for x in data:
+        try:
+            for y in x['tripUpdate']['stopTimeUpdate']:
+                stop_id = y['stopId']
+                if stop_id in station_object['stop_ids']:
+                    route = x['tripUpdate']['trip']['routeId']
+                    tripID = x['tripUpdate']['trip']['tripId']
+                    final_dest = x['tripUpdate']['stopTimeUpdate'][-1]['stop_name']
+                    arrival_time = (datetime.fromtimestamp(int(y['arrival']['time'])))
+                    difference = arrival_time - now
+                    arrival_time = (int(difference.total_seconds() / 60))
+                    if arrival_time < 0:
+                        pass
+                    else:
+                        route_info = {'route':route,
+                                      'tripId':tripID,
+                                      'final_dest':final_dest,
+                                      'arrival':arrival_time,
+                                      'station_info':y}
+                        train_stops.append(route_info)
+        except:
+            pass
+    train_stops.sort(key=lambda k : k['arrival'])
+    note = 'Next train in complete'
+    common.log_add(note,'API',3)
+    return train_stops
            
 def random_station():
     with open('data/stations.txt') as f:
         stations = [line.strip() for line in f]
     station = random.choice(stations)
     return station
+
+def random_station_v2():
+    all_stations = common.stations_load_v2()
+    while True:
+        station = random.choice(list(all_stations.keys()))
+        if all_stations[station]['enabled'] is True:
+            return station
+
 
 def subway_cleanup(train_info):
     subway_stops = pd.read_csv('data/stations.csv', index_col=None, header=0)

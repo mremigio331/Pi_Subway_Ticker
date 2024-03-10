@@ -12,31 +12,8 @@ from threading import Thread
 sys.path.append('additional_py_files')    
 import additional_py_files.subway_connect as sc
 import additional_py_files.common as common
+from additional_py_files.pi_board_draw import draw
 
-class draw():
-    def local_train(self, canvas,  x, y, color):
-        # Draws local train circle
-        graphics.DrawLine(canvas, x+2, y+0, x+6, y+0, color)
-        graphics.DrawLine(canvas, x+1, y+1, x+7, y+1, color)
-        graphics.DrawLine(canvas, x+0, y+2, x+8, y+2, color)
-        graphics.DrawLine(canvas, x+0, y+3, x+8, y+3, color)
-        graphics.DrawLine(canvas, x+0, y+4, x+8, y+4, color)
-        graphics.DrawLine(canvas, x+0, y+5, x+8, y+5, color)
-        graphics.DrawLine(canvas, x+0, y+6, x+8, y+6, color)
-        graphics.DrawLine(canvas, x+1, y+7, x+7, y+7, color)
-        graphics.DrawLine(canvas, x+2, y+8, x+6, y+8, color)
-
-    def express_train(self, canvas,  x, y, color):
-        # Draw express train diamond
-        graphics.DrawLine(canvas, x+4, y+0, x+4, y+0, color)
-        graphics.DrawLine(canvas, x+3, y+1, x+5, y+1, color)     
-        graphics.DrawLine(canvas, x+2, y+2, x+6, y+2, color)
-        graphics.DrawLine(canvas, x+1, y+3, x+7, y+3, color)
-        graphics.DrawLine(canvas, x+0, y+4, x+8, y+4, color)
-        graphics.DrawLine(canvas, x+1, y+5, x+7, y+5, color)
-        graphics.DrawLine(canvas, x+2, y+6, x+6, y+6, color)
-        graphics.DrawLine(canvas, x+3, y+7, x+5, y+7, color)
-        graphics.DrawLine(canvas, x+4, y+8, x+4, y+8, color)
 
 class nyc_subway(): 
     
@@ -83,16 +60,17 @@ class nyc_subway():
         common.log_add(note,'Display',2)
 
     def cycle(self):
+        
         while True:
-            cycle_check = common.config_return('cycle')
+            cycle_check = common.config_load_v2()['cycle']
             note = 'Cycle is set to ' + str(cycle_check)
             common.log_add(note,'System',1)
-            if cycle_check == 'True':
-                self.cycle_station = sc.random_station()
+            if cycle_check == True:
+                self.cycle_station = sc.random_station_v2()
                 note = 'Random station selected: ' + self.cycle_station
                 common.log_add(note,'System',1)  
-            sleep_time = common.config_return('cycle_time')
-            note = 'Cycle time set to ' + sleep_time + ' minutes.'
+            sleep_time = common.config_load_v2()['cycle_time']
+            note = f'Cycle time set to {sleep_time} minutes.'
             common.log_add(note,'System',1)
             time.sleep(int(sleep_time) * 60)
          
@@ -101,26 +79,75 @@ class nyc_subway():
         while True:
             try:
                 self.all_train_data = sc.all_train_data()
-                trains = sc.next_train_in(self.station, self.all_train_data)
+                trains = sc.next_train_in_v2(self.station, self.all_train_data)
                 trains.sort(key=lambda k : k['arrival'])
                 trains = trains[0:4]
                 for x in trains:
                     common.log_add(str(x),'Display',2)
-                self.train_1 = trains[0]['route']
-                self.train_1_time = (trains[0]['arrival'])
-                self.train_1_direction = trains[0]['final_dest']
-                self.train_2 = trains[1]['route']
-                self.train_2_time = (trains[1]['arrival'])
-                self.train_2_direction = trains[1]['final_dest']
-                self.train_3 = trains[2]['route']
-                self.train_3_time = (trains[2]['arrival'])
-                self.train_3_direction = trains[2]['final_dest']
-                self.train_4 = trains[3]['route']
-                self.train_4_time = (trains[3]['arrival'])
-                self.train_4_direction = trains[3]['final_dest']
+                
+                if len(trains) == 4: 
+                    self.train_1 = trains[0]['route']
+                    self.train_1_time = (trains[0]['arrival'])
+                    self.train_1_direction = trains[0]['final_dest']
+                    self.train_2 = trains[1]['route']
+                    self.train_2_time = (trains[1]['arrival'])
+                    self.train_2_direction = trains[1]['final_dest']
+                    self.train_3 = trains[2]['route']
+                    self.train_3_time = (trains[2]['arrival'])
+                    self.train_3_direction = trains[2]['final_dest']
+                    self.train_4 = trains[3]['route']
+                    self.train_4_time = (trains[3]['arrival'])
+                    self.train_4_direction = trains[3]['final_dest']
+                
+                elif len(trains) == 3:
+                    self.train_1 = trains[0]['route']
+                    self.train_1_time = (trains[0]['arrival'])
+                    self.train_1_direction = trains[0]['final_dest']
+                    self.train_2 = trains[1]['route']
+                    self.train_2_time = (trains[1]['arrival'])
+                    self.train_2_direction = trains[1]['final_dest']
+                    self.train_3 = trains[2]['route']
+                    self.train_3_time = (trains[2]['arrival'])
+                    self.train_3_direction = trains[2]['final_dest']
+                    self.train_4 = ''
+                    self.train_4_time = ''
+                    self.train_4_direction = ''
+                
+                elif len(trains) == 2:
+                    self.train_1 = trains[0]['route']
+                    self.train_1_time = (trains[0]['arrival'])
+                    self.train_1_direction = trains[0]['final_dest']
+                    self.train_2 = trains[1]['route']
+                    self.train_2_time = (trains[1]['arrival'])
+                    self.train_2_direction = trains[1]['final_dest']
+                    self.train_3 = trains[0]['route']
+                    self.train_3_time = (trains[0]['arrival'])
+                    self.train_3_direction = trains[0]['final_dest']
+                    self.train_4 = trains[1]['route']
+                    self.train_4_time = (trains[1]['arrival'])
+                    self.train_4_direction = trains[1]['final_dest']
+
+                elif len(trains) == 1:
+                    self.train_1 = trains[0]['route']
+                    self.train_1_time = (trains[0]['arrival'])
+                    self.train_1_direction = trains[0]['final_dest']
+                    self.train_2 = ''
+                    self.train_2_time = ''
+                    self.train_2_direction = ''
+                    self.train_3 = trains[0]['route']
+                    self.train_3_time = (trains[0]['arrival'])
+                    self.train_3_direction = trains[0]['final_dest']
+                    self.train_4 = ''
+                    self.train_4_time = ''
+                    self.train_4_direction = ''
+
+                if data_pull_errors == 3:
+                    self.cycle_station = sc.random_station_v2()
+
                 self.loading = False
                 self.station_load()
                 data_pull_errors = 0
+
             except Exception as error:
                 if data_pull_errors <= 2:
                     data_pull_errors += 1
@@ -138,6 +165,7 @@ class nyc_subway():
         while True:
             try:
                 for _ in range(35):
+                    display_train_string = common.build_station_element(self.station)['stop_name']
                     self.station_load()
                     self.canvas.Clear()
                     self.textColor = graphics.Color(237, 234, 222)
@@ -150,15 +178,15 @@ class nyc_subway():
                                     self.font, 
                                     self.station_pos, 
                                     7, 
-                                    self.waiting_color, 
-                                    self.station)
-                    if len(self.station) >= 16:
+                                    self.waiting_color,
+                                    display_train_string)
+                    if len(display_train_string) >= 16:
                         if int(self.station_pos) == 64:
                             time.sleep(5)
                             self.station_pos -= 1
-                        elif self.station_pos > (65 - len(self.station)):
+                        elif self.station_pos > (65 - len(display_train_string)):
                             self.station_pos -= 1
-                        elif self.station_pos == (65 - len(self.station)):
+                        elif self.station_pos == (65 - len(display_train_string)):
                             self.station_pos = 65
                             self.location_restart()
                     else:
@@ -236,6 +264,7 @@ class nyc_subway():
         api_check = common.api_keys_check()
         note = 'API Check = ' + str(api_check)
         common.log_add(note,'System',2)
+        self.cycle_station = common.config_load_v2()['station']
         if api_check == True:
             self.station_load()
             Thread(target = self.data_pull).start()
@@ -280,16 +309,16 @@ class nyc_subway():
             
     def station_load(self):
         try:
-            cycle_check = common.config_return('cycle')
-            if cycle_check == 'True':
+            cycle_check = common.config_load_v2()['cycle']
+            if cycle_check is True:
                 new_station = self.cycle_station
-                station_check = common.station_check(new_station)
+                station_check = common.station_check_v2(new_station)
             else:
-                new_station = common.config_return('station')
-                station_check = common.station_check(new_station)
+                new_station = common.config_load_v2()['station']
+                station_check = common.station_check_v2(new_station)
             if station_check is True:
                 if new_station != self.previous_station:
-                    self.station = new_station
+                    self.station = new_station  
                     self.previous_station = new_station
                     self.train_loading()
                     self.station_pos = 65

@@ -170,7 +170,14 @@ def station_check(station):
         return True
     else:
         return False
-           
+
+def station_check_v2(station):
+    all_stations = stations_load_v2()
+    return station in list(all_stations.keys())
+
+def build_station_element(station):
+    return stations_load_v2()[station]
+
 def stations_load():
     stations = []
     with open('data/stations.txt') as f:
@@ -179,7 +186,7 @@ def stations_load():
 
 def stations_load_v2():
     try:
-        return open_json_file('trains_config.json').keys()
+        return open_json_file('data/stations_config.json')
     except:
         note = 'There was an issue opening up the train stations'
         log_add(note,'Common',1)
