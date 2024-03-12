@@ -10,28 +10,31 @@ import random
 try:
     from google.transit import gtfs_realtime_pb2
 except:
-    sys.path.append('/home/pi/.local/lib/python3.9/site-packages/google/transit')
+    sys.path.append(
+        '/home/pi/.local/lib/python3.9/site-packages/google/transit')
     import gtfs_realtime_pb2
 from google.protobuf.json_format import MessageToDict
 
-def api_pull(line,link):
+
+def api_pull(line, link):
     note = 'Conducting API pull of ' + line
-    common.log_add(note,'API',4)
+    common.log_add(note, 'API', 4)
     api_key = common.config_load_v2()['api_key']
     feed = gtfs_realtime_pb2.FeedMessage()
     response = requests.get(link, headers={'x-api-key': str(api_key)})
     feed.ParseFromString(response.content)
     feed = MessageToDict(feed)
     note = 'Cleaning info for ' + line
-    common.log_add(note,'API',4)
+    common.log_add(note, 'API', 4)
     clean_info = subway_cleanup(feed)
     note = 'Completed cleaning up ' + line
-    common.log_add(note,'API',4)
+    common.log_add(note, 'API', 4)
     return clean_info
+
 
 def all_train_data():
     note = 'Starting all train data'
-    common.log_add(note,'API',3)
+    common.log_add(note, 'API', 3)
     api_links = [{'line': 'ACE',
                   'link': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace'},
                  {'line': 'BDFM',
@@ -49,33 +52,35 @@ def all_train_data():
                  ]
     all_train_info = []
     for x in api_links:
-        trains = api_pull(x['line'],x['link'])
+        trains = api_pull(x['line'], x['link'])
         for i in trains:
             all_train_info.append(i)
         note = 'Added information from the ' + x['line'] + ' line.'
-        common.log_add(note,'API',4)
+        common.log_add(note, 'API', 4)
     data_dump(all_train_info)
     return all_train_info
+
 
 def data_dump(train_info):
     data_dict = {}
     try:
         for x in train_info:
             train_id = x['id']
-            data_dict.update({train_id:x})
+            data_dict.update({train_id: x})
         with open('data/subway_info.json', 'w') as f:
             json.dump(data_dict, f)
         note = 'Successfully dump train data to a json'
-        common.log_add(note,'API',3)
+        common.log_add(note, 'API', 3)
     except:
         note = 'ERROR converting train data to a json'
-        common.log_add(note,'API',1)
-    
-def next_train_in(station,data):
+        common.log_add(note, 'API', 1)
+
+
+def next_train_in(station, data):
     train_stops = []
     now = datetime.now()
     note = 'Time now: ' + str(now)
-    common.log_add(note,'API',3)
+    common.log_add(note, 'API', 3)
     for x in data:
         try:
             for y in x['tripUpdate']['stopTimeUpdate']:
@@ -84,31 +89,33 @@ def next_train_in(station,data):
                     route = x['tripUpdate']['trip']['routeId']
                     tripID = x['tripUpdate']['trip']['tripId']
                     final_dest = x['tripUpdate']['stopTimeUpdate'][-1]['stop_name']
-                    arrival_time = (datetime.fromtimestamp(int(y['arrival']['time'])))
+                    arrival_time = (datetime.fromtimestamp(
+                        int(y['arrival']['time'])))
                     difference = arrival_time - now
                     arrival_time = (int(difference.total_seconds() / 60))
                     if arrival_time < 0:
                         pass
                     else:
-                        route_info = {'route':route,
-                                      'tripId':tripID,
-                                      'final_dest':final_dest,
-                                      'arrival':arrival_time,
-                                      'station_info':y}
+                        route_info = {'route': route,
+                                      'tripId': tripID,
+                                      'final_dest': final_dest,
+                                      'arrival': arrival_time,
+                                      'station_info': y}
                         train_stops.append(route_info)
         except:
             pass
-    train_stops.sort(key=lambda k : k['arrival'])
+    train_stops.sort(key=lambda k: k['arrival'])
     note = 'Next train in complete'
-    common.log_add(note,'API',3)
+    common.log_add(note, 'API', 3)
     return train_stops
 
-def next_train_in_v2(station,data):
+
+def next_train_in_v2(station, data):
     station_object = common.build_station_element(station)
     train_stops = []
     now = datetime.now()
     note = 'Time now: ' + str(now)
-    common.log_add(note,'API',3)
+    common.log_add(note, 'API', 3)
     for x in data:
         try:
             for y in x['tripUpdate']['stopTimeUpdate']:
@@ -117,30 +124,33 @@ def next_train_in_v2(station,data):
                     route = x['tripUpdate']['trip']['routeId']
                     tripID = x['tripUpdate']['trip']['tripId']
                     final_dest = x['tripUpdate']['stopTimeUpdate'][-1]['stop_name']
-                    arrival_time = (datetime.fromtimestamp(int(y['arrival']['time'])))
+                    arrival_time = (datetime.fromtimestamp(
+                        int(y['arrival']['time'])))
                     difference = arrival_time - now
                     arrival_time = (int(difference.total_seconds() / 60))
                     if arrival_time < 0:
                         pass
                     else:
-                        route_info = {'route':route,
-                                      'tripId':tripID,
-                                      'final_dest':final_dest,
-                                      'arrival':arrival_time,
-                                      'station_info':y}
+                        route_info = {'route': route,
+                                      'tripId': tripID,
+                                      'final_dest': final_dest,
+                                      'arrival': arrival_time,
+                                      'station_info': y}
                         train_stops.append(route_info)
         except:
             pass
-    train_stops.sort(key=lambda k : k['arrival'])
+    train_stops.sort(key=lambda k: k['arrival'])
     note = 'Next train in complete'
-    common.log_add(note,'API',3)
+    common.log_add(note, 'API', 3)
     return train_stops
-           
+
+
 def random_station():
     with open('data/stations.txt') as f:
         stations = [line.strip() for line in f]
     station = random.choice(stations)
     return station
+
 
 def random_station_v2():
     all_stations = common.stations_load_v2()
@@ -165,7 +175,7 @@ def subway_cleanup(train_info):
             try:
                 stop_id = y['stopId']
                 stop_name = subway_stops.loc[stop_id][1]
-                y.update({'stop_name': stop_name}) 
+                y.update({'stop_name': stop_name})
             except:
                 pass
-    return stop_time_update    
+    return stop_time_update
