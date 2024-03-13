@@ -1,10 +1,12 @@
 import additional_py_files.constants as constants
 import additional_py_files.common as common
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import threading
 import sys
 sys.path.append('additional_py_files')
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/')
@@ -103,6 +105,7 @@ def update_current_station():
         all_config = common.open_json_file(constants.CONFIG_FILE)
         current_station = all_trains_data[constants.CURRENT_STATION]
         current_cycle = all_config[constants.CYCLE]
+        new_cycle = str_to_bool(request.headers.get(constants.CYCLE))
 
         if constants.STATION in request.headers:
             new_station = request.headers.get(constants.STATION)
@@ -119,7 +122,7 @@ def update_current_station():
                 (current_station == new_station)
                 and
                 (new_cycle == current_cycle)
-                ):
+            ):
                 message = (
                     'Configs are already set to '
                     + f'current_station {current_station}'
@@ -142,42 +145,42 @@ def update_current_station():
                 (current_station == new_station)
                 and
                 (new_cycle == current_cycle)
-                ):
+            ):
                 message = (
                     'Configs are already set to '
                     + f'current_station {current_station}'
                     + f'cycle: {new_cycle}. No changes made'
                 )
                 return jsonify(message), 204
-        
-        new_cycle = str_to_bool(request.headers.get(constants.CYCLE))
-        
-        
-        # try:
-        
-        print(type(new_cycle), new_cycle)
-        print(current_station, new_station)
 
-        if constants.STATION in request.headers:
-            all_config[constants.STATION] = new_station
-            all_config[constants.CYCLE] = new_cycle
-            message = f'Successfully updated the current station to {new_station} and cycle to {new_cycle}.'
+        try:
 
-        elif constants.FORCE_CHANGE_STATION in request.headers:
-            all_config[constants.FORCE_CHANGE_STATION] = new_station
-            all_config[constants.CYCLE] = new_cycle
-            message = f'Successfully updated the force_change to {new_station} and cycle to {new_cycle}.'
+            if constants.STATION in request.headers:
+                all_config[constants.STATION] = new_station
+                all_config[constants.CYCLE] = new_cycle
+                message = (
+                    'Successfully updated the current station to '
+                    + f'{new_station} and cycle to {new_cycle}.'
+                    )
 
-        common.update_json(constants.CONFIG_FILE, all_config)
-        return (
-            jsonify(message),
-            200,
-            {'Content-Type': 'application/json'}
-        )
+            elif constants.FORCE_CHANGE_STATION in request.headers:
+                all_config[constants.FORCE_CHANGE_STATION] = new_station
+                all_config[constants.CYCLE] = new_cycle
+                message = (
+                    f'Successfully updated the force_change to '
+                    f'{new_station} and cycle to {new_cycle}.'
+                    )
 
-        # except Exception as e:
-        #     error = str(e)
-        #     return jsonify(error), 500, {'Content-Type': 'application/json'}
+            common.update_json(constants.CONFIG_FILE, all_config)
+            return (
+                jsonify(message),
+                200,
+                {'Content-Type': 'application/json'}
+            )
+
+        except Exception as e:
+            error = str(e)
+            return jsonify(error), 500, {'Content-Type': 'application/json'}
 
 
 @app.route('/trains/next_four', methods=[constants.GET])

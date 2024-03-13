@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import L from "leaflet";
 
-import {AllStations} from './SubwayStations'
+import { AllStations } from "./SubwayStations";
 
 export const SubwayMap = () => {
   useEffect(() => {
@@ -15,7 +15,7 @@ export const SubwayMap = () => {
     }).addTo(map);
 
     const addMarkers = (markersArray) => {
-      markersArray.forEach(markerData => {
+      markersArray.forEach((markerData) => {
         const marker = L.marker(markerData.coordinates).addTo(map);
         marker.bindPopup(markerData.popupContent);
       });

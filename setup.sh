@@ -8,6 +8,8 @@ sudo apt install python3-protobuf -y
 sudo apt install python3-pandas -y
 sudo apt install python3-protobuf -y
 sudo apt install python3-requests -y
+sudo apt install python3-flask -y
+pip3 install flask-cors --break-system-packages
 pip install --upgrade google-api-python-client
 pip install --upgrade gtfs-realtime-bindings
 cd

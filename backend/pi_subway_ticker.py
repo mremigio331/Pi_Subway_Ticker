@@ -283,28 +283,28 @@ class nyc_subway():
 
     def export_all_data(self):
         while self.run_status == True:
-            self.next_four_trains = {
-                'train_1': {
+            self.next_four_trains = [
+                {
                     'train': self.train_1,
                     'train_time': self.train_1_time,
                     'train_direction': self.train_1_direction
                 },
-                'train_2': {
+                 {
                     'train': self.train_2,
                     'train_time': self.train_2_time,
                     'train_direction': self.train_2_direction
                 },
-                'train_3': {
+                {
                     'train': self.train_3,
                     'train_time': self.train_3_time,
                     'train_direction': self.train_3_direction
                 },
-                'train_4': {
+                {
                     'train': self.train_4,
                     'train_time': self.train_4_time,
                     'train_direction': self.train_4_direction
                 }
-            }
+            ]
             try:
                 common.all_data_to_json(
                     self.loading, self.station, self.next_four_trains, self.all_train_data)

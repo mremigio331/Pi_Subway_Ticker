@@ -8,7 +8,7 @@ import {
   Density,
   Mode,
 } from "@cloudscape-design/global-styles";
-import { Home } from "./Pages/Home/Home";
+import { Home } from "./pages/home/Home";
 import { Routes, Route } from "react-router-dom";
 
 const PageRoutes = () => {

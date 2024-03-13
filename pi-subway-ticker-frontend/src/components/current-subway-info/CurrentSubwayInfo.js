@@ -3,7 +3,7 @@ import { Container, Header } from "@cloudscape-design/components";
 import { SubwayCards } from "./SubwayCards";
 import { SubwayMap } from "./SubwayMap";
 
-export const CurrentSubwwayInfo = () => {
+export const CurrentSubwayInfo = () => {
   return (
     <Container
       header={

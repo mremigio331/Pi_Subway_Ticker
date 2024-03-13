@@ -5,9 +5,9 @@
   "main": "main.js",
   "scripts": {
     "build": "webpack --mode production",
-    "start": "webpack server --mode development",
-    "dev": "webpack-dev-server",
-    "format": "npx prettier --write ."
+    "start": "npm run build && node server.js",
+    "dev": "webpack serve --mode development",
+    "format": "prettier --write ."
   },
   "keywords": [
     "webpack",
