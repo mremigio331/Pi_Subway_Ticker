@@ -11,7 +11,9 @@ PUT = 'PUT'
 POST = 'POST'
 
 # Output File Information
+CURRENT_STATION_FULL = 'current_station_full'
 CURRENT_STATION = 'current_station'
+STATION = 'station'
 NEXT_FOUR = 'next_four'
 TIMESTAMP = 'timestamp'
 LOADING = 'loading'
@@ -26,6 +28,7 @@ STOP_LON = "stop_lon"
 STOP_ID = "stop_ids"
 TRAIN_LINES = "train_lines"
 ENABLED = "enabled"
+
 
 API_KEY = "api_key"
 STATION = "station"

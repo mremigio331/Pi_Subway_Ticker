@@ -53,7 +53,7 @@ def get_current_station():
 
 @app.route('/trains/current_station', methods=[constants.PUT])
 def update_current_station():
-    # curl -i -X PUT -H "station: 103 St - 119" -H "cycle: false" http://localhost:5000/trains/current_station
+    # curl -i -X PUT -H "station: Times Sq-42 St - R16" -H "cycle: false" http://localhost:5000/trains/current_station
     # curl -i -X PUT -H "force_change_station: 103 St - 1191" -H "cycle: true" http://localhost:5000/trains/current_station
     if request.method == constants.PUT:
         if (
@@ -161,7 +161,7 @@ def update_current_station():
                 message = (
                     'Successfully updated the current station to '
                     + f'{new_station} and cycle to {new_cycle}.'
-                    )
+                )
 
             elif constants.FORCE_CHANGE_STATION in request.headers:
                 all_config[constants.FORCE_CHANGE_STATION] = new_station
@@ -169,7 +169,7 @@ def update_current_station():
                 message = (
                     f'Successfully updated the force_change to '
                     f'{new_station} and cycle to {new_cycle}.'
-                    )
+                )
 
             common.update_json(constants.CONFIG_FILE, all_config)
             return (
@@ -190,7 +190,7 @@ def get_next_four():
         try:
             all_trains_data = common.open_json_file(constants.API_EXPORT_FILE)
             next_four_info = {
-                constants.CURRENT_STATION: all_trains_data[constants.CURRENT_STATION],
+                constants.CURRENT_STATION: common.build_station_element(all_trains_data[constants.CURRENT_STATION]),
                 constants.NEXT_FOUR: all_trains_data[constants.NEXT_FOUR],
                 constants.TIMESTAMP: all_trains_data[constants.TIMESTAMP],
                 constants.LOADING: all_trains_data[constants.LOADING],

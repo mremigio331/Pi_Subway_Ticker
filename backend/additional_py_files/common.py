@@ -3,7 +3,7 @@ from datetime import datetime
 import sys
 import random
 import json
-import logging
+import time
 from os.path import exists
 sys.path.append('/home/pi/.local/lib/python3.9/site-packages/')
 
@@ -31,14 +31,18 @@ def config_load():
         log_add(note, 'Common', 1)
 
 
-def open_json_file(file_name):
-    try:
-        with open(file_name, 'r') as json_file:
-            json_data = json.load(json_file)
-        return json_data
-    except:
-        note = f'Error opening up {file_name}'
-        log_add(note, 'Common', 1)
+def open_json_file(file_name, max_timeout=3):
+    retries = 0
+    while retries < max_timeout:
+        try:
+            with open(file_name, 'r') as json_file:
+                json_data = json.load(json_file)
+            return json_data
+        except Exception as e:
+            retries += 1
+            time.sleep(2)
+    note = f'Error opening up {file_name}: Max retries reached.'
+    log_add(note, 'Common', 1)
 
 
 def config_load_v2():

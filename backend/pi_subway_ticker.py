@@ -289,7 +289,7 @@ class nyc_subway():
                     'train_time': self.train_1_time,
                     'train_direction': self.train_1_direction
                 },
-                 {
+                {
                     'train': self.train_2,
                     'train_time': self.train_2_time,
                     'train_direction': self.train_2_direction

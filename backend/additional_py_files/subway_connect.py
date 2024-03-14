@@ -67,8 +67,8 @@ def data_dump(train_info):
         for x in train_info:
             train_id = x['id']
             data_dict.update({train_id: x})
-        with open('data/subway_info.json', 'w') as f:
-            json.dump(data_dict, f)
+        with open('data/subway_info.json', 'w') as json_file:
+            json.dump(data_dict, json_file, indent=4)
         note = 'Successfully dump train data to a json'
         common.log_add(note, 'API', 3)
     except:
