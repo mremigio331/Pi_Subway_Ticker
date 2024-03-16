@@ -1,7 +1,7 @@
 import * as React from "react";
 import "@cloudscape-design/components";
 import { useCookies } from "react-cookie";
-import NavBar from "./NavBar";
+import NavBar from "./navigation/NavBar";
 import {
   applyMode,
   applyDensity,

@@ -43,6 +43,20 @@ export const getNextFourTrains = async () => {
   return response.data;
 };
 
+export const getCurrentStation = async () => {
+  const requestURL = `http://localhost:5000/trains/current_station`;
+  const response = await axios
+    .get(requestURL)
+    .then((res) => {
+      return res;
+    })
+    .catch((error) => {
+      return error;
+    });
+
+  return response.data;
+};
+
 const createFlashbarMessage = (
   uniqueIDAnchor,
   type,

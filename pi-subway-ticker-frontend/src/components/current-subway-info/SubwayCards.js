@@ -7,8 +7,7 @@ import {
   SpaceBetween,
 } from "@cloudscape-design/components";
 
-import { getNextFourTrains } from "../../services/API";
-import { TrainLogos } from "./SubwayLogos"
+import { TrainLogos } from "./SubwayLogos";
 
 const getTextColor = (time) => {
   return time === 0 ? "gold" : "green";
@@ -24,7 +23,7 @@ const CreateRouteText = (item) => {
 
 const CreateTimeText = (item) => {
   return (
-    item.time !== 0 && (
+    item.train_time != 0 && (
       <div style={{ color: "green", alignItems: "center" }}>
         {item.train_time}
       </div>
@@ -32,34 +31,8 @@ const CreateTimeText = (item) => {
   );
 };
 
-export const SubwayCards = () => {
+export const SubwayCards = ({ trainItems, isMobileDevice }) => {
   // Check if user is on a mobile device
-  const isMobileDevice =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent,
-    );
-
-  const [trainItems, setTrainItems] = React.useState([]);
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getNextFourTrains(); // Call the API function
-        setTrainItems(data.next_four); // Update the state with the fetched data
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData(); // Fetch data initially
-
-    const intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
-
-    // Clean up interval to avoid memory leaks
-    return () => clearInterval(intervalId);
-  }, []); // Empty dependency array to run only once on mount
-
-  console.log(trainItems);
-  
 
   return (
     <Cards
@@ -85,7 +58,7 @@ export const SubwayCards = () => {
                 <img
                   width={isMobileDevice ? "15" : "25"}
                   height={isMobileDevice ? "15" : "25"}
-                  src={TrainLogos[`${item.train.toLowerCase()}`] || ''}
+                  src={TrainLogos[`${item.train.toLowerCase()}`] || ""}
                 />
                 {CreateRouteText(item)}
               </SpaceBetween>
