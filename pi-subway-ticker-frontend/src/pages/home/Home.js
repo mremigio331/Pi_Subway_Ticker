@@ -1,31 +1,13 @@
-import React, { useEffect } from "react";
-import {
-  AppLayout,
-  ContentLayout,
-  Flashbar,
-  Header,
-  SpaceBetween,
-} from "@cloudscape-design/components";
-import { ServiceRunningCheck } from "../../services/API";
-import { CurrentSubwayInfo } from "../../components/current-subway-info/CurrentSubwayInfo";
-import {
-  useAllNotifications,
-  NotificationConstants,
-} from "../../services/Notifications";
+import React, { useEffect } from 'react';
+import { ContentLayout, Flashbar, Header, SpaceBetween } from '@cloudscape-design/components';
+import { CurrentSubwayInfo } from '../../components/current-subway-info/CurrentSubwayInfo';
 
 export const Home = () => {
-  const [flashbarNotifications] = useAllNotifications();
-
-  return (
-    <AppLayout
-      notifications={<Flashbar items={flashbarNotifications} />}
-      content={
+    return (
         <ContentLayout header={<Header variant="h1">Pi Subway Ticker</Header>}>
-          <SpaceBetween>
-            <CurrentSubwayInfo />
-          </SpaceBetween>
+            <SpaceBetween>
+                <CurrentSubwayInfo />
+            </SpaceBetween>
         </ContentLayout>
-      }
-    />
-  );
+    );
 };

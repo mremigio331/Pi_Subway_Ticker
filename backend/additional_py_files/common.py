@@ -230,3 +230,10 @@ def get_current_time():
 def update_json(filename, updated_data):
     with open(filename, 'w') as json_file:
         json.dump(updated_data, json_file, indent=4)
+
+
+def dict_to_list_of_dicts(input_dict):
+    output_list = []
+    for key, value in input_dict.items():
+        output_list.append({"type": key, "value": value})
+    return output_list

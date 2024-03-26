@@ -2,6 +2,7 @@
 from additional_py_files.pi_board_draw import draw
 import additional_py_files.common as common
 import additional_py_files.subway_connect as sc
+import additional_py_files.constants as constants
 import time
 import sys
 import os
@@ -10,7 +11,7 @@ from threading import Thread
 
 # cwd = sys.argv[0]
 # if '/' in cwd:
-#     mvwd = cwd.split('pi_subway_ticker.py')[0]
+#     mvwd = cwd.split('/backend/pi_subway_ticker.py')[0]
 #     os.chdir(mvwd)
 sys.path.append('additional_py_files')
 
@@ -316,29 +317,48 @@ class nyc_subway():
 
     def station_load(self):
         try:
-            cycle_check = common.config_load_v2()['cycle']
-            if cycle_check is True:
-                new_station = self.cycle_station
-                station_check = common.station_check_v2(new_station)
-            else:
-                new_station = common.config_load_v2()['station']
-                station_check = common.station_check_v2(new_station)
-            if station_check is True:
-                if new_station != self.previous_station:
-                    self.station = new_station
-                    self.previous_station = new_station
-                    self.train_loading()
-                    self.station_pos = 65
-                    note = 'New Station: ' + self.station
-                    common.log_add(note, 'Display', 2)
+            cycle_check = common.config_load_v2()[constants.CYCLE]
+            force_change_station_check = common.config_load_v2()[constants.FORCE_CHANGE_STATION]
+            if force_change_station_check != '':
+                self.station = force_change_station_check
+                self.previous_station = force_change_station_check
+                self.cycle_station = force_change_station_check
+                self.train_loading()
+                self.station_pos = 65
+                note = 'New Station: ' + self.station
+                common.log_add(note, 'Display', 2)
+                all_configs = common.config_load_v2()
+                all_configs[constants.FORCE_CHANGE_STATION] = ''
+                common.update_json(constants.CONFIG_FILE, all_configs)
+            
+            else:    
+                if cycle_check is True:
+                    new_station = self.cycle_station
+                    station_check = common.station_check_v2(new_station)
                 else:
-                    self.station = new_station
-                    note = 'No Station Change'
-                    common.log_add(note, 'Display', 4)
-            else:
-                self.station_load_error = True
-                note = 'ERROR: Station check result false, check spelling. Station in config: ' + new_station
-                common.log_add(note, 'Display', 1)
+                    new_station = common.config_load_v2()[constants.STATION]
+                    station_check = common.station_check_v2(new_station)
+                
+                if station_check is True:
+                    if new_station != self.previous_station:
+                        self.station = new_station
+                        self.previous_station = new_station
+                        self.train_loading()
+                        self.station_pos = 65
+                        note = 'New Station: ' + self.station
+                        common.log_add(note, 'Display', 2)
+                    else:
+                        self.station = new_station
+                        note = 'No Station Change'
+                        common.log_add(note, 'Display', 4)
+                
+                
+
+                else:
+                    self.station_load_error = True
+                    note = 'ERROR: Station check result false, check spelling. Station in config: ' + new_station
+                    common.log_add(note, 'Display', 1)
+            
         except:
             note = 'ERROR: Station load'
             common.log_add(note, 'Display', 1)

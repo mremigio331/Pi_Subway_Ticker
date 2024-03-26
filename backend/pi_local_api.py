@@ -2,14 +2,17 @@ import additional_py_files.constants as constants
 import additional_py_files.common as common
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_caching import Cache
 import threading
 import sys
 sys.path.append('additional_py_files')
 app = Flask(__name__)
-CORS(app)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route('/')
+@cache.cached(timeout=10)
 def pi_api_home():
     # curl -H "Content-Type: application/json" http://localhost:5000/
     try:
@@ -28,6 +31,7 @@ def pi_api_home():
 
 
 @app.route('/trains/current_station', methods=[constants.GET])
+@cache.cached(timeout=10)
 def get_current_station():
     if request.method == constants.GET:
         # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/trains/current_station
@@ -52,9 +56,10 @@ def get_current_station():
 
 
 @app.route('/trains/current_station', methods=[constants.PUT])
+@cache.cached(timeout=10)
 def update_current_station():
     # curl -i -X PUT -H "station: Times Sq-42 St - R16" -H "cycle: false" http://localhost:5000/trains/current_station
-    # curl -i -X PUT -H "force_change_station: 103 St - 1191" -H "cycle: true" http://localhost:5000/trains/current_station
+    # curl -i -X PUT -H "force_change_station: 103 St - 119" -H "cycle: true" http://localhost:5000/trains/current_station
     if request.method == constants.PUT:
         if (
             (constants.STATION not in request.headers)
@@ -184,6 +189,7 @@ def update_current_station():
 
 
 @app.route('/trains/next_four', methods=[constants.GET])
+@cache.cached(timeout=10)
 def get_next_four():
     if request.method == constants.GET:
         # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/trains/next_four
@@ -207,6 +213,7 @@ def get_next_four():
 
 
 @app.route('/trains/all_data', methods=[constants.GET])
+@cache.cached(timeout=10)
 def get_all_trains_data():
     if request.method == constants.GET:
         # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/trains/all_data
@@ -224,6 +231,7 @@ def get_all_trains_data():
 
 
 @app.route('/trains/stations/full_info', methods=[constants.GET])
+@cache.cached(timeout=10)
 def get_all_train_stations():
     if request.method == constants.GET:
         # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/trains/stations/full_info
@@ -245,6 +253,7 @@ def get_all_train_stations():
 
 
 @app.route('/trains/stations/specific_station', methods=[constants.GET, constants.PUT])
+@cache.cached(timeout=10)
 def specific_station_info():
     if constants.STATION not in request.headers:
         return jsonify({'error': 'Station header is missing'}), 400
@@ -323,13 +332,15 @@ def specific_station_info():
 
 
 @app.route('/config', methods=[constants.GET])
+@cache.cached(timeout=10)
 def get_all_config():
     if request.method == constants.GET:
         # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/config
         # curl -i -X PUT -H "Content-Type: application/json" http://localhost:5000/config
         try:
             all_config = common.open_json_file(constants.CONFIG_FILE)
-            return jsonify(all_config), 200, {'Content-Type': 'application/json'}
+            config_list = common.dict_to_list_of_dicts(all_config)
+            return jsonify(config_list), 200, {'Content-Type': 'application/json'}
         except Exception as e:
             error = str(e)
             return jsonify(error), 500, {'Content-Type': 'application/json'}

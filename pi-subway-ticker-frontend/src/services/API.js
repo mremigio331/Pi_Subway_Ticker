@@ -1,78 +1,80 @@
-import axios from "axios";
+import axios from 'axios';
 
-export const ServiceRunningCheck = async ({
-  dispatchFlashbarNotification,
-  NotificationConstants,
-}) => {
-  const requestURL = `http://localhost:5000/`;
+export const ServiceRunningCheck = async ({ dispatchFlashbarNotification, NotificationConstants }) => {
+    const requestURL = `http://localhost:5000/`;
+    try {
+        const response = await axios.get(requestURL);
 
-  try {
-    const response = await axios.get(requestURL);
-
-    if (response.status >= 200 && response.status < 300) {
-      dispatchFlashbarNotification({
-        type: NotificationConstants.PUSH_NOTIFICATION,
-        payload: {
-          id: "service-running-notification",
-          content: "Service is running successfully!",
-        },
-      });
+        if (response.status >= 200 && response.status < 300) {
+            dispatchFlashbarNotification({
+                type: NotificationConstants.PUSH_NOTIFICATION,
+                payload: {
+                    id: 'service-running-notification',
+                    content: 'Service is running successfully!',
+                },
+            });
+        }
+    } catch (error) {
+        dispatchFlashbarNotification({
+            type: NotificationConstants.PUSH_NOTIFICATION,
+            payload: {
+                id: 'service-running-notification',
+                content: 'Service is running unsuccessfully!',
+            },
+        });
     }
-  } catch (error) {
-    dispatchFlashbarNotification({
-      type: NotificationConstants.PUSH_NOTIFICATION,
-      payload: {
-        id: "service-running-notification",
-        content: "Service is running unsuccessfully!",
-      },
-    });
-  }
 };
 
-export const getNextFourTrains = async () => {
-  const requestURL = `http://localhost:5000/trains/next_four`;
-  const response = await axios
-    .get(requestURL)
-    .then((res) => {
-      return res;
-    })
-    .catch((error) => {
-      return error;
-    });
+export const getNextFourTrains = async (apiCheckState, resetRetries, incrementRetries) => {
+    const requestURL = `http://localhost:5000/trains/next_four`;
+    const response = await axios
+        .get(requestURL)
+        .then((res) => {
+            return res;
+        })
+        .catch((error) => {
+            return error;
+        });
 
-  return response.data;
+    return response.data;
 };
 
-export const getCurrentStation = async () => {
-  const requestURL = `http://localhost:5000/trains/current_station`;
-  const response = await axios
-    .get(requestURL)
-    .then((res) => {
-      return res;
-    })
-    .catch((error) => {
-      return error;
-    });
+export const getCurrentStation = async (apiCheckState, resetRetries, incrementRetries) => {
+    const requestURL = `http://localhost:5000/trains/current_station`;
+    const response = await axios
+        .get(requestURL)
+        .then((res) => {
+            return res;
+        })
+        .catch((error) => {
+            return error;
+        });
 
-  return response.data;
+    return response.data;
 };
 
-const createFlashbarMessage = (
-  uniqueIDAnchor,
-  type,
-  ticket,
-  content,
-  dismissNotification,
-  loading = false,
-) => {
-  return {
-    type: type,
-    id: `${ticket.ticket_id}-${uniqueIDAnchor}`,
-    dismissible: true,
-    dismissLabel: "Dismiss message",
-    onDismiss: () =>
-      dismissNotification(`${ticket.ticket_id}-${uniqueIDAnchor}`),
-    content: content,
-    loading: loading,
-  };
+const createFlashbarMessage = (uniqueIDAnchor, type, ticket, content, dismissNotification, loading = false) => {
+    return {
+        type: type,
+        id: `${ticket.ticket_id}-${uniqueIDAnchor}`,
+        dismissible: true,
+        dismissLabel: 'Dismiss message',
+        onDismiss: () => dismissNotification(`${ticket.ticket_id}-${uniqueIDAnchor}`),
+        content: content,
+        loading: loading,
+    };
+};
+
+export const getCurrentSettings = async (apiCheckState, resetRetries, incrementRetries) => {
+    const requestURL = `http://localhost:5000/config`;
+    const response = await axios
+        .get(requestURL)
+        .then((res) => {
+            return res;
+        })
+        .catch((error) => {
+            return error;
+        });
+
+    return response.data;
 };
