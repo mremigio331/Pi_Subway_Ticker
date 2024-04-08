@@ -83,8 +83,6 @@ export const CurrentSubwayInfo = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-    console.log(trainItems);
-
     return (
         <Container
             header={

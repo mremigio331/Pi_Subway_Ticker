@@ -78,3 +78,32 @@ export const getCurrentSettings = async (apiCheckState, resetRetries, incrementR
 
     return response.data;
 };
+
+export const getAllStations = async (apiCheckState, resetRetries, incrementRetries) => {
+    const requestURL = `http://localhost:5000/trains/stations/full_info`;
+    const response = await axios
+        .get(requestURL)
+        .then((res) => {
+            return res;
+        })
+        .catch((error) => {
+            return error;
+        });
+
+    return response.data;
+};
+
+
+export const updateConfig = async (configType, value) => {
+    const requestURL = `http://localhost:5000/trains/stations/full_info`;
+    const response = await axios
+        .get(requestURL)
+        .then((res) => {
+            return res;
+        })
+        .catch((error) => {
+            return error;
+        });
+
+    return response.data;
+};

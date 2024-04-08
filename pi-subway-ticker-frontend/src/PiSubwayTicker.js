@@ -9,14 +9,16 @@ import { applyMode, applyDensity, Density, Mode } from '@cloudscape-design/globa
 import { Home } from './pages/home/Home';
 import { Settings } from './pages/settings/Settings';
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useParams } from 'react-router-dom';
 import { useAllNotifications, NotificationConstants } from './services/Notifications';
 
 const PageRoutes = () => {
+    const { location } = useParams();
     return (
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="settings" element={<Settings />} />
+            <Route path={`/${location}`} element={<div>Page not found</div>} />
         </Routes>
     );
 };

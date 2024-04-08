@@ -8,7 +8,7 @@ import sys
 sys.path.append('additional_py_files')
 app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources='*')
 
 
 @app.route('/')
@@ -341,6 +341,57 @@ def get_all_config():
             all_config = common.open_json_file(constants.CONFIG_FILE)
             config_list = common.dict_to_list_of_dicts(all_config)
             return jsonify(config_list), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            error = str(e)
+            return jsonify(error), 500, {'Content-Type': 'application/json'}
+
+
+@app.route('/config/<config>', methods=[constants.GET, constants.PUT])
+@cache.cached(timeout=10)
+def specific_config(config):
+    if request.method == constants.GET:
+        # curl -i -X GET http://localhost:5000/config/api_key
+        try:
+            all_config = common.open_json_file(constants.CONFIG_FILE)
+            return_dict = {
+                'requested_config': config,
+                'value': all_config[config]
+            }
+            return jsonify(return_dict), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            error = str(e)
+            return jsonify(error), 500, {'Content-Type': 'application/json'}
+    if request.method == constants.PUT:
+
+        try:
+            if config not in constants.UPDATABLE_CONFIGS_HEADERS:
+                if config in constants.STATION_HEADERS:
+                    return (
+                        jsonify({'error': f'Use the /trains/stations/specific_station to update {config}'}
+                                ), 400, {'Content-Type': 'application/json'}
+                    )
+            if constants.VALUE not in request.headers:
+                return jsonify({'error': 'Value header is missing'}), 400
+
+            all_configs = common.open_json_file(constants.CONFIG_FILE)
+            current_value = all_configs[config]
+            new_value = ''
+            if config in constants.CONFIG_BOOL_OPTIONS:
+                # curl -i -X -H "cycle: true" ' PUT http://localhost:5000/config/api_key
+                new_value = str_to_bool(request.headers.get(constants.VALUE))
+            else:
+                new_value = request.headers.get(constants.VALUE)
+
+            if current_value == new_value:
+                message = f'{config} is already set to {new_value}'
+            else:
+                message = f'{config} has been updated from {current_value} to {new_value} '
+
+            all_configs[config] = new_value
+            common.update_json(constants.CONFIG_FILE, all_configs)
+
+            return jsonify(message), 200, {'Content-Type': 'application/json'}
+
         except Exception as e:
             error = str(e)
             return jsonify(error), 500, {'Content-Type': 'application/json'}
