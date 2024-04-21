@@ -17,7 +17,7 @@ import { UpdateSettingsModal, INITIAL_SETTINGS_MODAL_STATE, settingsReducer } fr
 
 import { getCurrentSettings } from '../../services/API';
 
-const ConfigsCards = ({ configs, isLoading }) => {
+const ConfigsCards = ({ configs, isLoading, isRefetching, refetch }) => {
     const filteredConfigs = configs.filter((item) => item.type !== 'force_change_station');
     const [settingsState, settingsDispatch] = React.useReducer(settingsReducer, INITIAL_SETTINGS_MODAL_STATE);
     return (
@@ -27,6 +27,8 @@ const ConfigsCards = ({ configs, isLoading }) => {
                     settingsState={settingsState}
                     settingsDispatch={settingsDispatch}
                     configs={filteredConfigs}
+                    refetch={refetch}
+
                 />
             )}
             <Cards
@@ -64,24 +66,36 @@ const ConfigsCards = ({ configs, isLoading }) => {
                         No configs found
                     </Box>
                 }
-                header={<Header>Current Configs</Header>}
+                header={
+                    <Header
+                    actions={
+                        <Button 
+                            iconName="refresh" 
+                            variant="icon" 
+                            disabled={isLoading || isRefetching} 
+                            onClick={() => refetch()}
+                        />
+
+                    }
+                    >
+                        Current Configs
+                    </Header>}
             />
         </span>
     );
 };
 
 export const CurrentSettings = () => {
-    const { data, isLoading, isRefetching, isError } = useQuery({
+    const { data, isLoading, isRefetching, isError, refetch } = useQuery({
         queryKey: ['currentConfigs'],
         queryFn: getCurrentSettings,
     });
-
     return (
         <SpaceBetween>
             {isLoading ? (
                 <Spinner /> // Render spinner when isLoading is true
             ) : (
-                <ConfigsCards configs={data} isLoading={isLoading} />
+                <ConfigsCards configs={data} isLoading={isLoading} isRefetching={isRefetching} refetch={refetch} />
             )}
         </SpaceBetween>
     );

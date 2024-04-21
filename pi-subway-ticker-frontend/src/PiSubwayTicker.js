@@ -10,14 +10,14 @@ import { Home } from './pages/home/Home';
 import { Settings } from './pages/settings/Settings';
 
 import { Routes, Route, useParams } from 'react-router-dom';
-import { useAllNotifications, NotificationConstants } from './services/Notifications';
+import { getNotificationsContext, NotificationConstants } from './services/Notifications'; // Fixed function name
 
 const PageRoutes = () => {
     const { location } = useParams();
     return (
         <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="settings" element={<Settings />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path={`/${location}`} element={<div>Page not found</div>} />
         </Routes>
     );
@@ -25,7 +25,7 @@ const PageRoutes = () => {
 export const PiSubwayTicker = () => {
     document.title = 'Pi Subway Ticker';
 
-    const [flashbarNotifications] = useAllNotifications();
+    const { notifications } = getNotificationsContext(); // Fixed function call
 
     return (
         <div>
@@ -34,7 +34,7 @@ export const PiSubwayTicker = () => {
             </div>
             <AppLayout
                 navigation={<SideNav />}
-                notifications={<Flashbar items={flashbarNotifications} />}
+                notifications={<Flashbar items={notifications} />}
                 content={<PageRoutes />}
             />
         </div>

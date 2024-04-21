@@ -53,18 +53,6 @@ export const getCurrentStation = async (apiCheckState, resetRetries, incrementRe
     return response.data;
 };
 
-const createFlashbarMessage = (uniqueIDAnchor, type, ticket, content, dismissNotification, loading = false) => {
-    return {
-        type: type,
-        id: `${ticket.ticket_id}-${uniqueIDAnchor}`,
-        dismissible: true,
-        dismissLabel: 'Dismiss message',
-        onDismiss: () => dismissNotification(`${ticket.ticket_id}-${uniqueIDAnchor}`),
-        content: content,
-        loading: loading,
-    };
-};
-
 export const getCurrentSettings = async (apiCheckState, resetRetries, incrementRetries) => {
     const requestURL = `http://localhost:5000/config`;
     const response = await axios
@@ -93,17 +81,76 @@ export const getAllStations = async (apiCheckState, resetRetries, incrementRetri
     return response.data;
 };
 
-
 export const updateConfig = async (configType, value) => {
-    const requestURL = `http://localhost:5000/trains/stations/full_info`;
-    const response = await axios
-        .get(requestURL)
-        .then((res) => {
-            return res;
-        })
-        .catch((error) => {
-            return error;
-        });
+    const requestURL = `http://localhost:5000/config/${configType}`;
 
-    return response.data;
+    try {
+        const response = await axios.put(requestURL, {}, {
+            headers: {
+                value: value.toString() // Convert value to string if it's not already
+            }
+        });
+        return response;
+    } catch (error) {
+        if (error.response && error.response.status >= 400 && error.response.status < 600) {
+            // Return response data for any 4xx or 5xx status code
+            return error.response.data;
+        } else {
+            // Re-throw the error for other types of errors
+            throw error;
+        }
+    }
+}
+
+export const updateEnabledStation = async (station, enabled) => {
+    console.log('station', station);
+    const requestURL = `http://localhost:5000/trains/stations/specific_station`;
+    
+    try {
+        const response = await axios.put(requestURL, {}, {
+            headers: {
+                'station': station.label, // Use single quotes for header names
+                'enabled': enabled.toString() // Convert enabled to string if it's not already
+            }
+        });
+        console.log(response);
+        return response;
+    } catch (error) {
+        console.error(error);
+        if (error.response && error.response.status >= 400 && error.response.status < 600) {
+            // Return response data for any 4xx or 5xx status code
+            return error.response.data;
+        } else {
+            // Re-throw the error for other types of errors
+            throw error;
+        }
+    }
+};
+
+export const updateCurrentStation = async (station, forceChange, cycle) => {
+    const requestURL = `http://localhost:5000/trains/current_station/update`;
+
+    let headers = {};
+    // curl -i -X PUT -H "station: Times Sq-42 St - R16" -H "cycle: false" http://localhost:5000/trains/current_station
+    // curl -i -X PUT -H "force_change_station: 103 St - 119" -H "cycle: true" http://localhost:5000/trains/current_station
+
+
+
+    forceChange == true ? headers['station'] = station.label : headers['force_change_station'] = station.label
+    headers['cycle'] = cycle.toString()
+    
+    try {
+        const response = await axios.put(requestURL, {}, { headers });
+        console.log(response);
+        return response;
+    } catch (error) {
+        console.error(error);
+        if (error.response && error.response.status >= 400 && error.response.status < 600) {
+            // Return response data for any 4xx or 5xx status code
+            return error.response.data;
+        } else {
+            // Re-throw the error for other types of errors
+            throw error;
+        }
+    }
 };

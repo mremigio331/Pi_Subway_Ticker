@@ -1,6 +1,5 @@
-import React from 'react';
-import {getAllStations} from '../../services/API'
-
+import React, { useState, useEffect } from 'react';
+import { getAllStations, updateConfig, updateCurrentStation } from '../../services/API';
 import {
     Cards,
     Container,
@@ -17,29 +16,71 @@ import {
     TextContent,
 } from '@cloudscape-design/components';
 import { useQuery } from '@tanstack/react-query';
+import {
+    getNotificationsContext,
+    NotificationConstants,
+    enhanceMessagesWithDismissAction,
+} from '../../services/Notifications'; // Updated import
+import { v4 as uuidv4 } from 'uuid';
 
-
-export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs }) => {
+export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, refetch }) => {
     const selectedIndex = configs.findIndex((config) => config.type === settingsState.selectedSetting);
-    const [value, setValue] = React.useState('');
-    const [selectedOption, setSelectedOption] = React.useState({});
-    const [statusType, setStatusType] = React.useState('finished');
-    const { isError: allTrainsIsError, data: allTrainsData, isLoading: allTrainsIsLoading, isRefetching: allTrainsIsRefetching } = useQuery({
+    const [value, setValue] = useState('');
+    const [selectedOption, setSelectedOption] = useState({});
+    const [statusType, setStatusType] = useState('finished');
+    const {
+        isError: allTrainsIsError,
+        data: allTrainsData,
+        isLoading: allTrainsIsLoading,
+        isRefetching: allTrainsIsRefetching,
+        refetch: refetchAllTrains
+    } = useQuery({
         queryKey: ['allTrains'],
         queryFn: getAllStations,
     });
 
-    React.useEffect(() => {
+    const { dismissNotification, pushNotification, modifyNotificationContent } =
+        getNotificationsContext(); // Updated usage
+
+    const handleUpdateClick = async () => {
+        const message_id = uuidv4();
+        const message = {
+            content: 'Updating config',
+            type: NotificationConstants.INFO,
+            id: message_id,
+            onDismiss: () => dismissNotification(message_id),
+            dismissible: false,
+            dismissLabel: 'Dismiss',
+            loading: true,
+        };
+        pushNotification(message);
+        settingsDispatch({ action: { visible: false, selectedSetting: settingsState.selectedSetting } });
+        const response = await updateConfig(configs[selectedIndex].type, value);
+        if (response.status === 200 || response.status === 204) {
+            message.content = response.data;
+            message.type = NotificationConstants.SUCCESS;
+            message.dismissible = true;
+            message.loading = false;
+            modifyNotificationContent(message_id, message);
+        } else {
+            message.content = `Failed to update config: ${response.error}`;
+            message.type = NotificationConstants.ERROR;
+            message.dismissible = true;
+            message.loading = false;
+            modifyNotificationContent(message_id, message);
+        }
+        refetch()
+
+    };
+
+    useEffect(() => {
         if (allTrainsIsError) {
             setStatusType('error');
+        } else if (allTrainsIsLoading === false) {
+            setStatusType('finished');
         }
-        else if (allTrainsIsLoading == false) {
-            setStatusType('finished')
-        }
-    }, [allTrainsIsError]);
+    }, [allTrainsIsError, allTrainsIsLoading]);
 
-    
-    console.log('selectedOption', selectedOption)
     return (
         <Modal
             onDismiss={() =>
@@ -52,10 +93,11 @@ export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs }
                         <Button
                             variant="link"
                             onClick={() => {
-                                setSelectedOption({}) 
+                                setSelectedOption({});
+                                setValue('')
                                 settingsDispatch({
                                     action: { visible: false, selectedSetting: settingsState.selectedSetting },
-                                })
+                                });
                             }}
                         >
                             Cancel
@@ -63,9 +105,11 @@ export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs }
                         <Button
                             variant="primary"
                             disabled={
-                                DROPDOWN_TYPES.includes(configs[selectedIndex].type) ?
-                                    (statusType === 'loading' ? true : false) : value === ''
+                                DROPDOWN_TYPES.includes(configs[selectedIndex].type)
+                                    ? statusType === 'loading'
+                                    : value === ''
                             }
+                            onClick={handleUpdateClick}
                         >
                             Update
                         </Button>
@@ -86,6 +130,7 @@ export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs }
                         statusType={statusType}
                         setStatusType={setStatusType}
                         allTrainsData={allTrainsData}
+                        setValue={setValue}
                     />
                 ) : (
                     <Textarea
@@ -109,7 +154,15 @@ export const settingsReducer = (settingsSate, action) => {
     return action.action;
 };
 
-const ConfigsSelect = ({ selectedConfig, selectedOption, setSelectedOption, statusType, setStatusType, allTrainsData }) => {
+const ConfigsSelect = ({
+    selectedConfig,
+    selectedOption,
+    setSelectedOption,
+    statusType,
+    setStatusType,
+    allTrainsData,
+    setValue,
+}) => {
     let options = [];
     switch (selectedConfig.type.toString()) {
         case 'cycle':
@@ -119,22 +172,30 @@ const ConfigsSelect = ({ selectedConfig, selectedOption, setSelectedOption, stat
             options = BOOL_TYPE;
             break;
         case 'station':
-            console.log(allTrainsData)
-            options = statusType == 'finished' ? Object.entries(allTrainsData)
-            .filter(([key, value]) => value.enabled === true)
-            .map(([key, value]) => ({ label: key, value: key })) : []
+            options =
+                statusType === 'finished'
+                    ? Object.entries(allTrainsData)
+                          .filter(([key, value]) => value.enabled === true)
+                          .map(([key, value]) => ({ label: key, value: key }))
+                    : [];
+            break;
+        default:
+            options = [];
             break;
     }
 
     return (
         <Select
-        selectedOption={selectedOption}
-        onChange={({ detail }) => setSelectedOption(detail.selectedOption)}
-        options={options}
-        statusType={statusType}
-        filteringType="auto"
-        filterPlaceholder="Type to filter options" // Optional: Customize filter placeholder text
-    />
+            selectedOption={selectedOption}
+            onChange={({ detail }) => {
+                setSelectedOption(detail.selectedOption);
+                setValue(detail.selectedOption.value);
+            }}
+            options={options}
+            statusType={statusType}
+            filteringType="auto"
+            filterPlaceholder="Type to filter options"
+        />
     );
 };
 
@@ -143,8 +204,3 @@ const BOOL_TYPE = [
     { label: 'true', value: true },
     { label: 'false', value: false },
 ];
-
-//"cycle": true,
-//"force_change_station": "",
-//"log_level": "INFO",
-//"create_log_file": true,

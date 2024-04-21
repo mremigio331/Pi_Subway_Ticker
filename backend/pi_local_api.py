@@ -55,7 +55,7 @@ def get_current_station():
             return jsonify(error), 500, {'Content-Type': 'application/json'}
 
 
-@app.route('/trains/current_station', methods=[constants.PUT])
+@app.route('/trains/current_station/update', methods=[constants.PUT])
 @cache.cached(timeout=10)
 def update_current_station():
     # curl -i -X PUT -H "station: Times Sq-42 St - R16" -H "cycle: false" http://localhost:5000/trains/current_station
@@ -362,14 +362,8 @@ def specific_config(config):
             error = str(e)
             return jsonify(error), 500, {'Content-Type': 'application/json'}
     if request.method == constants.PUT:
-
         try:
-            if config not in constants.UPDATABLE_CONFIGS_HEADERS:
-                if config in constants.STATION_HEADERS:
-                    return (
-                        jsonify({'error': f'Use the /trains/stations/specific_station to update {config}'}
-                                ), 400, {'Content-Type': 'application/json'}
-                    )
+
             if constants.VALUE not in request.headers:
                 return jsonify({'error': 'Value header is missing'}), 400
 
@@ -377,15 +371,15 @@ def specific_config(config):
             current_value = all_configs[config]
             new_value = ''
             if config in constants.CONFIG_BOOL_OPTIONS:
-                # curl -i -X -H "cycle: true" ' PUT http://localhost:5000/config/api_key
+                # curl -i -X PUT -H "value: true" http://localhost:5000/config/cycle
                 new_value = str_to_bool(request.headers.get(constants.VALUE))
             else:
                 new_value = request.headers.get(constants.VALUE)
 
             if current_value == new_value:
-                message = f'{config} is already set to {new_value}'
+                message = f'Config {config} is already set to {new_value}'
             else:
-                message = f'{config} has been updated from {current_value} to {new_value} '
+                message = f'Config {config} has been updated from {current_value} to {new_value} '
 
             all_configs[config] = new_value
             common.update_json(constants.CONFIG_FILE, all_configs)
