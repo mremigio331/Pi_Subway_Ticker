@@ -1,21 +1,54 @@
 import * as React from 'react';
 import { StatusIndicator, TopNavigation } from '@cloudscape-design/components';
 import { useNavigate } from 'react-router-dom';
-import { useApiCheck } from '../providers/APICheckProvider';
+import { useApiCheck, RESET_RETRIES } from '../providers/APICheckProvider';
+import { getNotificationsContext } from '../services/Notifications';
+import { v4 as uuidv4 } from 'uuid';
 
 export default () => {
     const navigate = useNavigate();
-    const { apiCheckState } = useApiCheck();
-    const [currentAPIRetryCount, setCurrentAPIRetryCount] = React.useState(apiCheckState.apiRetries);
+    const { dismissNotification, pushNotification, modifyNotificationContent } = getNotificationsContext();
 
-    // React.useMemo(() => {
-    //   setCurrentAPIRetryCount(apiCheckState.apiRetries);
-    //   console.log("apiCheckState", apiCheckState.apiRetries);
-    // }, [apiCheckState]); // Dependency array with apiCheckState
+    const { apiCheckState, dispatch } = useApiCheck();
+    console.log(apiCheckState);
 
-    const handleClick = (event) => {
+    const handlePageClick = (event) => {
         event.preventDefault();
         navigate(event.detail.href);
+    };
+
+    const handleHomeClick = (event) => {
+        event.preventDefault();
+        navigate('/');
+    };
+
+    const handleAPIReset = (event) => {
+        console.log('CLICKED ME');
+        dispatch({ type: RESET_RETRIES });
+        const message_id = uuidv4();
+        const message = {
+            content: 'Attempting to Reconnect To API',
+            type: NotificationConstants.INFO,
+            id: message_id,
+            onDismiss: () => dismissNotification(message_id),
+            dismissible: false,
+            dismissLabel: 'Dismiss',
+            loading: true,
+        };
+        pushNotification(message);
+        if (apiCheckState.apiRetries == 0) {
+            message.content = 'API Successfully Reconnected';
+            message.type = NotificationConstants.SUCCESS;
+            message.dismissible = true;
+            message.loading = false;
+            modifyNotificationContent(message_id, message);
+        } else if (apiCheckState.apiRetries < 10) {
+            message.content = `Failed to reconnect to the API`;
+            message.type = NotificationConstants.ERROR;
+            message.dismissible = true;
+            message.loading = false;
+            modifyNotificationContent(message_id, message);
+        }
     };
 
     return (
@@ -23,8 +56,16 @@ export default () => {
             identity={{
                 href: '/',
                 title: 'Pi Subway Ticker',
+                onFollow: handleHomeClick,
             }}
             utilities={[
+                {
+                    type: 'button',
+                    text: 'Settings',
+                    href: '/settings',
+                    onClick: handlePageClick,
+                },
+
                 {
                     type: 'menu-dropdown',
                     iconName: 'settings',
@@ -32,8 +73,14 @@ export default () => {
                     title: 'Status',
                     items: [
                         {
+                            type: 'button',
+                            text: 'System Actions',
+                            href: '/system',
+                            onClick: handlePageClick,
+                        },
+                        {
                             id: 'apiErrorCount',
-                            text: <ApiStatusIndicator currentAPIRetryCount={currentAPIRetryCount} />,
+                            text: <ApiStatusIndicator currentAPIRetryCount={apiCheckState.apiRetries} />,
                         },
                     ],
                 },

@@ -21,11 +21,5 @@ export default () => {
         navigate(event.detail.href); // Use navigate to handle navigation
     };
 
-    return (
-        <SideNavigation
-            header={{ href: '/', text: 'Home' }}
-            items={[{ type: 'link', text: 'Settings', href: '/settings' }]}
-            onFollow={handleFollow}
-        />
-    );
+    return <SideNavigation header={{ href: '/', text: 'Home' }} items={[]} onFollow={handleFollow} />;
 };

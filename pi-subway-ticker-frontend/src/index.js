@@ -1,22 +1,21 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { PiSubwayTicker } from './PiSubwayTicker';
-import { AllNotificationsProvider } from './services/Notifications';
+import { NotificationsProvider } from './services/Notifications';
 import { APICheckProvider } from './providers/APICheckProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
-ReactDOM.render(
+createRoot(document.getElementById('app')).render(
     <BrowserRouter>
         <QueryClientProvider client={queryClient}>
-            <AllNotificationsProvider>
+            <NotificationsProvider>
                 <APICheckProvider>
                     <PiSubwayTicker />
                 </APICheckProvider>
-            </AllNotificationsProvider>
+            </NotificationsProvider>
         </QueryClientProvider>
     </BrowserRouter>,
-    document.getElementById('app'),
 );

@@ -33,14 +33,13 @@ export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, 
         data: allTrainsData,
         isLoading: allTrainsIsLoading,
         isRefetching: allTrainsIsRefetching,
-        refetch: refetchAllTrains
+        refetch: refetchAllTrains,
     } = useQuery({
         queryKey: ['allTrains'],
         queryFn: getAllStations,
     });
 
-    const { dismissNotification, pushNotification, modifyNotificationContent } =
-        getNotificationsContext(); // Updated usage
+    const { dismissNotification, pushNotification, modifyNotificationContent } = getNotificationsContext(); // Updated usage
 
     const handleUpdateClick = async () => {
         const message_id = uuidv4();
@@ -69,8 +68,7 @@ export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, 
             message.loading = false;
             modifyNotificationContent(message_id, message);
         }
-        refetch()
-
+        refetch();
     };
 
     useEffect(() => {
@@ -94,7 +92,7 @@ export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, 
                             variant="link"
                             onClick={() => {
                                 setSelectedOption({});
-                                setValue('')
+                                setValue('');
                                 settingsDispatch({
                                     action: { visible: false, selectedSetting: settingsState.selectedSetting },
                                 });

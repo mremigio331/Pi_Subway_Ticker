@@ -1,16 +1,14 @@
 import * as React from 'react';
 import { AppLayout, ContentLayout, Flashbar, Header, SpaceBetween } from '@cloudscape-design/components';
-import { useCookies } from 'react-cookie';
 import NavBar from './navigation/NavBar';
-import SideNav from './navigation/SideNav';
-
-import { applyMode, applyDensity, Density, Mode } from '@cloudscape-design/global-styles';
 
 import { Home } from './pages/home/Home';
 import { Settings } from './pages/settings/Settings';
+import NotFoundPage from './pages/PageNotFound';
+import SystemActions from './pages/SystemActions';
 
 import { Routes, Route, useParams } from 'react-router-dom';
-import { getNotificationsContext, NotificationConstants } from './services/Notifications'; // Fixed function name
+import { getNotificationsContext } from './services/Notifications'; // Fixed function name
 
 const PageRoutes = () => {
     const { location } = useParams();
@@ -18,12 +16,14 @@ const PageRoutes = () => {
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path={`/${location}`} element={<div>Page not found</div>} />
+            <Route path="/system" element={<SystemActions />} />
+            <Route path="*" element={<NotFoundPage />} />
         </Routes>
     );
 };
 export const PiSubwayTicker = () => {
     document.title = 'Pi Subway Ticker';
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     const { notifications } = getNotificationsContext(); // Fixed function call
 
@@ -33,9 +33,11 @@ export const PiSubwayTicker = () => {
                 <NavBar />
             </div>
             <AppLayout
-                navigation={<SideNav />}
                 notifications={<Flashbar items={notifications} />}
                 content={<PageRoutes />}
+                navigationHide
+                toolsHide
+                maxContentWidth={Number.MAX_VALUE}
             />
         </div>
     );

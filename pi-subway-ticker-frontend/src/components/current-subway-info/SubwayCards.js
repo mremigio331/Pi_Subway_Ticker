@@ -8,22 +8,30 @@ const getTextColor = (time) => {
 };
 
 const CreateRouteText = (item) => {
-    return <div style={{ color: getTextColor(item.train_time), alignItems: 'center' }}>{item.train_direction}</div>;
+    return (
+        <Header variant="h3" style={{ color: getTextColor(item.train_time), alignItems: 'center' }}>
+            {item.train_direction}
+        </Header>
+    );
 };
 
 const CreateTimeText = (item) => {
-    return item.train_time != 0 && <div style={{ color: 'green', alignItems: 'center' }}>{item.train_time}</div>;
+    return (
+        item.train_time != 0 && (
+            <Header variant="h3" style={{ color: 'green', alignItems: 'center' }}>
+                {item.train_time}
+            </Header>
+        )
+    );
 };
 
 export const SubwayCards = ({ trainItems, isMobileDevice }) => {
-    // Check if user is on a mobile device
-
     return (
         <Cards
             cardDefinition={{
                 header: (item) => (
                     <Header
-                        variant="h1"
+                        variant="h4"
                         actions={
                             <Box fontSize={isMobileDevice ? 'small' : 'heading-xl'} fontWeight="bold" float="right">
                                 {CreateTimeText(item)}
@@ -35,7 +43,7 @@ export const SubwayCards = ({ trainItems, isMobileDevice }) => {
                                 <img
                                     width={isMobileDevice ? '15' : '25'}
                                     height={isMobileDevice ? '15' : '25'}
-                                    src={TrainLogos[`${item.train.toLowerCase()}`] || ''}
+                                    src={TrainLogos[`${item.train}`] || ''}
                                 />
                                 {CreateRouteText(item)}
                             </SpaceBetween>

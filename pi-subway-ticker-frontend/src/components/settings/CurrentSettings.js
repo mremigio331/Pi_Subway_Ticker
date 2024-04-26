@@ -10,6 +10,7 @@ import {
     Popover,
     Spinner,
     SpaceBetween,
+    ContentLayout,
 } from '@cloudscape-design/components';
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,15 +21,15 @@ import { getCurrentSettings } from '../../services/API';
 const ConfigsCards = ({ configs, isLoading, isRefetching, refetch }) => {
     const filteredConfigs = configs.filter((item) => item.type !== 'force_change_station');
     const [settingsState, settingsDispatch] = React.useReducer(settingsReducer, INITIAL_SETTINGS_MODAL_STATE);
+
     return (
-        <span>
+        <>
             {configs != undefined && (
                 <UpdateSettingsModal
                     settingsState={settingsState}
                     settingsDispatch={settingsDispatch}
                     configs={filteredConfigs}
                     refetch={refetch}
-
                 />
             )}
             <Cards
@@ -68,20 +69,20 @@ const ConfigsCards = ({ configs, isLoading, isRefetching, refetch }) => {
                 }
                 header={
                     <Header
-                    actions={
-                        <Button 
-                            iconName="refresh" 
-                            variant="icon" 
-                            disabled={isLoading || isRefetching} 
-                            onClick={() => refetch()}
-                        />
-
-                    }
+                        actions={
+                            <Button
+                                iconName="refresh"
+                                variant="icon"
+                                disabled={isLoading || isRefetching}
+                                onClick={() => refetch()}
+                            />
+                        }
                     >
                         Current Configs
-                    </Header>}
+                    </Header>
+                }
             />
-        </span>
+        </>
     );
 };
 
@@ -90,13 +91,31 @@ export const CurrentSettings = () => {
         queryKey: ['currentConfigs'],
         queryFn: getCurrentSettings,
     });
+
     return (
-        <SpaceBetween>
+        <ContentLayout>
             {isLoading ? (
-                <Spinner /> // Render spinner when isLoading is true
+                <Spinner />
+            ) : isError || data == 'Network Error' ? (
+                <Container
+                    header={
+                        <Header
+                            actions={
+                                <SpaceBetween direction="horizontal" size="s">
+                                    <Button>Restart PI</Button>
+                                </SpaceBetween>
+                            }
+                        >
+                            Error
+                        </Header>
+                    }
+                >
+                    There was an error with the API. Check to confirm the API is running. You can also try to restart
+                    the API or the Pi
+                </Container>
             ) : (
                 <ConfigsCards configs={data} isLoading={isLoading} isRefetching={isRefetching} refetch={refetch} />
             )}
-        </SpaceBetween>
+        </ContentLayout>
     );
 };
