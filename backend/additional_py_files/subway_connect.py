@@ -48,7 +48,9 @@ def all_train_data():
                  {'line': 'L',
                   'link': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-l'},
                  {'line': '1234567',
-                  'link': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs'}
+                  'link': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs'},
+                 {'line': 'SIR',
+                  'link': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si'}
                  ]
     all_train_info = []
     for x in api_links:

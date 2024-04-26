@@ -318,7 +318,8 @@ class nyc_subway():
     def station_load(self):
         try:
             cycle_check = common.config_load_v2()[constants.CYCLE]
-            force_change_station_check = common.config_load_v2()[constants.FORCE_CHANGE_STATION]
+            force_change_station_check = common.config_load_v2()[
+                constants.FORCE_CHANGE_STATION]
             if force_change_station_check != '':
                 self.station = force_change_station_check
                 self.previous_station = force_change_station_check
@@ -330,15 +331,15 @@ class nyc_subway():
                 all_configs = common.config_load_v2()
                 all_configs[constants.FORCE_CHANGE_STATION] = ''
                 common.update_json(constants.CONFIG_FILE, all_configs)
-            
-            else:    
+
+            else:
                 if cycle_check is True:
                     new_station = self.cycle_station
                     station_check = common.station_check_v2(new_station)
                 else:
                     new_station = common.config_load_v2()[constants.STATION]
                     station_check = common.station_check_v2(new_station)
-                
+
                 if station_check is True:
                     if new_station != self.previous_station:
                         self.station = new_station
@@ -351,14 +352,12 @@ class nyc_subway():
                         self.station = new_station
                         note = 'No Station Change'
                         common.log_add(note, 'Display', 4)
-                
-                
 
                 else:
                     self.station_load_error = True
                     note = 'ERROR: Station check result false, check spelling. Station in config: ' + new_station
                     common.log_add(note, 'Display', 1)
-            
+
         except:
             note = 'ERROR: Station load'
             common.log_add(note, 'Display', 1)
@@ -410,6 +409,9 @@ class nyc_subway():
             return graphics.Color(0, 173, 208)
         elif train in ['!']:
             return graphics.Color(255, 0, 0)
+        elif train in ['SI']:
+            return graphics.Color(149, 153, 160)
+
         elif train == '':
             return graphics.Color(0, 0, 0)
         else:

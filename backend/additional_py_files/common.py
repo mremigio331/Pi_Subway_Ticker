@@ -237,3 +237,16 @@ def dict_to_list_of_dicts(input_dict):
     for key, value in input_dict.items():
         output_list.append({"type": key, "value": value})
     return output_list
+
+
+def str_to_bool(string):
+    # Convert the string to lowercase for case-insensitive comparison
+    string_lower = string.lower()
+
+    # Check if the string is "true" or "false" and return the corresponding boolean value
+    if string_lower == 'true':
+        return True
+    elif string_lower == 'false':
+        return False
+    else:
+        raise ValueError("Input string must be 'true' or 'false'")
