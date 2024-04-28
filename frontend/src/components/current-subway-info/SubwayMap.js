@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Button, Container, Header, SpaceBetween } from '@cloudscape-design/components';
 import L from 'leaflet';
-import blueMarker from '../../assests/MapMarkers/blue-marker.png';
-import greenMarker from '../../assests/MapMarkers/green-marker.png';
+import selectedMarker from '../../assests/MapMarkers/MTA_Selected.png';
+import notSelectedMarker from '../../assests/MapMarkers/MTA_Not_Selected.png';
 import { TrainLogos } from './SubwayLogos';
 import { AllStations } from './SubwayStations';
 import { updateCurrentStation } from '../../services/API';
@@ -54,18 +54,22 @@ export const SubwayMap = ({ currentStation, currentCenterMap, mapInitialized, se
             currentStation == 'Loading' ? 12 : 18,
         );
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-        }).addTo(newMap);
+        L.tileLayer('https://{s}.google.com/vt/lyrs={type}&x={x}&y={y}&z={z}', {
+    attribution: 'Map data &copy; <a href="https://www.google.com/maps">Google Maps</a>',
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3'],
+    type: 'r' // 's' for streets, 'm' for terrain, 'h' for hybrid, 'y' for satellite
+}).addTo(newMap);
+
 
         const addMarkers = (markersArray, currentStation) => {
             markersArray.forEach((markerData) => {
                 const isCurrentCenter = markerData.stationName == currentStation;
 
                 const icon = L.icon({
-                    iconUrl: isCurrentCenter ? blueMarker : greenMarker,
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
+                    iconUrl: isCurrentCenter ? selectedMarker : notSelectedMarker,
+                    iconSize: [45, 45],
+                    iconAnchor: [45, 45],
                     popupAnchor: [1, -34],
                 });
 

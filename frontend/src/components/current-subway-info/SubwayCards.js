@@ -9,7 +9,7 @@ const getTextColor = (time) => {
 
 const CreateRouteText = (item) => {
     return (
-        <Header variant="h3" style={{ color: getTextColor(item.train_time), alignItems: 'center' }}>
+        <Header variant="h4" style={{ color: getTextColor(item.train_time), alignItems: 'center' }}>
             {item.train_direction}
         </Header>
     );
@@ -18,7 +18,7 @@ const CreateRouteText = (item) => {
 const CreateTimeText = (item) => {
     return (
         item.train_time != 0 && (
-            <Header variant="h3" style={{ color: 'green', alignItems: 'center' }}>
+            <Header variant="h4" style={{ color: 'green', alignItems: 'center' }}>
                 {item.train_time}
             </Header>
         )

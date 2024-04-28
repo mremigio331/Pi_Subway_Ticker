@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { apiEndpoint } from '../configs/apiConfig';
 
 export const ServiceRunningCheck = async ({ dispatchFlashbarNotification, NotificationConstants }) => {
-    const requestURL = `http://devpi.local:5000/`;
+    const requestURL = `http://${apiEndpoint}:5000/`;
     try {
         const response = await axios.get(requestURL);
 
@@ -25,8 +26,8 @@ export const ServiceRunningCheck = async ({ dispatchFlashbarNotification, Notifi
     }
 };
 
-export const getNextFourTrains = async (apiCheckState, resetRetries, incrementRetries) => {
-    const requestURL = `http://devpi.local:5000/trains/next_four`;
+export const getNextFourTrains = async () => {
+    const requestURL = `http://${apiEndpoint}:5000/trains/next_four`;
     try {
         const response = await axios.get(requestURL);
         return response.data;
@@ -42,8 +43,8 @@ export const getNextFourTrains = async (apiCheckState, resetRetries, incrementRe
     }
 };
 
-export const getCurrentStation = async (apiCheckState, resetRetries, incrementRetries) => {
-    const requestURL = `http://devpi.local:5000/trains/current_station`;
+export const getCurrentStation = async () => {
+    const requestURL = `http://${apiEndpoint}:5000/trains/current_station`;
     try {
         const response = await axios.get(requestURL);
         return response.data;
@@ -60,7 +61,7 @@ export const getCurrentStation = async (apiCheckState, resetRetries, incrementRe
 };
 
 export const getCurrentSettings = async () => {
-    const requestURL = `http://devpi.local:5000/configs`;
+    const requestURL = `http://${apiEndpoint}:5000/configs`;
     try {
         const response = await axios.get(requestURL);
         return response.data;
@@ -76,8 +77,8 @@ export const getCurrentSettings = async () => {
     }
 };
 
-export const getAllStations = async (apiCheckState, resetRetries, incrementRetries) => {
-    const requestURL = `http://devpi.local:5000/stations/full_info`;
+export const getAllStations = async () => {
+    const requestURL = `http://${apiEndpoint}:5000/stations/full_info`;
     const response = await axios
         .get(requestURL)
         .then((res) => {
@@ -91,7 +92,7 @@ export const getAllStations = async (apiCheckState, resetRetries, incrementRetri
 };
 
 export const updateConfig = async (configType, value) => {
-    const requestURL = `http://devpi.local:5000/configs/${configType}`;
+    const requestURL = `http://${apiEndpoint}:5000/configs/${configType}`;
 
     try {
         const response = await axios.put(
@@ -116,7 +117,7 @@ export const updateConfig = async (configType, value) => {
 };
 
 export const updateEnabledStation = async (station, enabled) => {
-    const requestURL = `http://devpi.local:5000/stations/specific_station`;
+    const requestURL = `http://${apiEndpoint}:5000/stations/specific_station`;
 
     try {
         const response = await axios.put(
@@ -143,11 +144,11 @@ export const updateEnabledStation = async (station, enabled) => {
 };
 
 export const updateCurrentStation = async (station) => {
-    const requestURL = `http://devpi.local:5000/trains/current_station/update`;
+    const requestURL = `http://${apiEndpoint}:5000/trains/current_station/update`;
 
     let headers = {};
-    // curl -i -X PUT -H "station: Times Sq-42 St - R16" -H "cycle: false" http://devpi.local:5000/trains/current_station
-    // curl -i -X PUT -H "force_change_station: 103 St - 119" -H "cycle: true" http://devpi.local:5000/trains/current_station
+    // curl -i -X PUT -H "station: Times Sq-42 St - R16" -H "cycle: false" http://${apiEndpoint}:5000/trains/current_station
+    // curl -i -X PUT -H "force_change_station: 103 St - 119" -H "cycle: true" http://${apiEndpoint}:5000/trains/current_station
 
     headers['force_change_station'] = station;
     headers['cycle'] = 'true';
@@ -171,7 +172,7 @@ export const updateCode = () => {};
 
 export const updatePi = () => {
     return new Promise((resolve, reject) => {
-        const eventSource = new EventSource('http://devpi.local:5000/system/update/pi');
+        const eventSource = new EventSource('http://${apiEndpoint}:5000/system/update/pi');
 
         eventSource.onmessage = (event) => {
             resolve(event.data); // Resolve the Promise with each chunk of text data as it arrives
@@ -182,8 +183,6 @@ export const updatePi = () => {
         };
     });
 };
-
-
 
 
 export const restartPi = async () => {

@@ -93,7 +93,7 @@ export const CurrentSettings = () => {
     });
 
     return (
-        <ContentLayout>
+        <SpaceBetween>
             {isLoading ? (
                 <Spinner />
             ) : isError || data == 'Network Error' ? (
@@ -116,6 +116,6 @@ export const CurrentSettings = () => {
             ) : (
                 <ConfigsCards configs={data} isLoading={isLoading} isRefetching={isRefetching} refetch={refetch} />
             )}
-        </ContentLayout>
+        </SpaceBetween>
     );
 };

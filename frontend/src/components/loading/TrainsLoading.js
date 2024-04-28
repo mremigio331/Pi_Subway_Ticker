@@ -1,7 +1,7 @@
 import { TrainLogos } from '../current-subway-info/SubwayLogos';
 
 export const getRandomTrainLogos = () => {
-    const numLogosToSelect = 10;
+    const numLogosToSelect = 14;
     const selectedLogos = [];
 
     const trainNames = Object.keys(TrainLogos);
