@@ -89,7 +89,7 @@ class nyc_subway():
                 trains.sort(key=lambda k: k['arrival'])
                 trains = trains[0:4]
                 for x in trains:
-                    common.log_add(str(x), 'Display', 2)
+                    common.log_add(str(x), 'Display', 3)
 
                 if len(trains) == 4:
                     self.train_1 = trains[0]['route']
@@ -147,7 +147,9 @@ class nyc_subway():
                     self.train_4_time = ''
                     self.train_4_direction = ''
 
-                if data_pull_errors == 3:
+                else:
+                    note = f'{self.station} has no data, loading a new one'
+                    common.log_add(note, 'System', 2)
                     self.cycle_station = sc.random_station_v2()
 
                 self.loading = False
@@ -318,12 +320,13 @@ class nyc_subway():
     def station_load(self):
         try:
             cycle_check = common.config_load_v2()[constants.CYCLE]
-            force_change_station_check = common.config_load_v2()[
+            self.force_change_station_check = common.config_load_v2()[
                 constants.FORCE_CHANGE_STATION]
-            if force_change_station_check != '':
-                self.station = force_change_station_check
-                self.previous_station = force_change_station_check
-                self.cycle_station = force_change_station_check
+
+            if self.force_change_station_check != '':
+                self.station = self.force_change_station_check
+                self.previous_station = self.force_change_station_check
+                self.cycle_station = self.force_change_station_check
                 self.train_loading()
                 self.station_pos = 65
                 note = 'New Station: ' + self.station
@@ -334,28 +337,29 @@ class nyc_subway():
 
             else:
                 if cycle_check is True:
-                    new_station = self.cycle_station
-                    station_check = common.station_check_v2(new_station)
+                    self.new_station = self.cycle_station
+                    station_check = common.station_check_v2(self.new_station)
                 else:
-                    new_station = common.config_load_v2()[constants.STATION]
-                    station_check = common.station_check_v2(new_station)
+                    self.new_station = common.config_load_v2()[
+                        constants.STATION]
+                    station_check = common.station_check_v2(self.new_station)
 
                 if station_check is True:
-                    if new_station != self.previous_station:
-                        self.station = new_station
-                        self.previous_station = new_station
+                    if self.new_station != self.previous_station:
+                        self.station = self.new_station
+                        self.previous_station = self.new_station
                         self.train_loading()
                         self.station_pos = 65
                         note = 'New Station: ' + self.station
                         common.log_add(note, 'Display', 2)
                     else:
-                        self.station = new_station
+                        self.station = self.new_station
                         note = 'No Station Change'
                         common.log_add(note, 'Display', 4)
 
                 else:
                     self.station_load_error = True
-                    note = 'ERROR: Station check result false, check spelling. Station in config: ' + new_station
+                    note = 'ERROR: Station check result false, check spelling. Station in config: ' + self.new_station
                     common.log_add(note, 'Display', 1)
 
         except:
@@ -385,7 +389,7 @@ class nyc_subway():
                 text_location += 10
 
     def train_colors(self, train):
-        if train in ['A', 'C', 'E']:
+        if train in ['A', 'C', 'E', 'H']:
             return graphics.Color(0, 57, 166)
         elif train in ['B', 'D', 'F', 'FX', 'M']:
             return graphics.Color(255, 99, 25)
@@ -397,7 +401,7 @@ class nyc_subway():
             return graphics.Color(167, 169, 172)
         elif train in ['N', 'Q', 'R', 'W']:
             return graphics.Color(252, 204, 10)
-        elif train in ['S', 'FS']:
+        elif train in ['S', 'FS', 'L']:
             return graphics.Color(128, 129, 131)
         elif train in ['1', '2', '3']:
             return graphics.Color(238, 53, 46)

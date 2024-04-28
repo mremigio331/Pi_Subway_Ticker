@@ -122,7 +122,7 @@ def next_train_in_v2(station, data):
         try:
             for y in x['tripUpdate']['stopTimeUpdate']:
                 stop_id = y['stopId']
-                if stop_id in station_object['stop_ids']:
+                if stop_id in station_object['stop_ids'] or str(stop_id + 'S') in station_object['stop_ids'] or str(stop_id + 'N') in station_object['stop_ids']:
                     route = x['tripUpdate']['trip']['routeId']
                     tripID = x['tripUpdate']['trip']['tripId']
                     final_dest = x['tripUpdate']['stopTimeUpdate'][-1]['stop_name']

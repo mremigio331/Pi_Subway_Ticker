@@ -18,19 +18,6 @@ def api_keys_check():
         return False
 
 
-def config_load():
-    try:
-        configs = []
-        with open('trains.conf') as f:
-            general_configs = [line.strip() for line in f]
-        for x in general_configs:
-            configs.append(x)
-        return configs
-    except:
-        note = 'ERROR loading configs'
-        log_add(note, 'Common', 1)
-
-
 def open_json_file(file_name, max_timeout=3):
     retries = 0
     while retries < max_timeout:
@@ -53,29 +40,17 @@ def config_load_v2():
         log_add(note, 'Common', 1)
 
 
-def config_return(conf):
-    configs = config_load()
-    for x in configs:
-        if conf in x:
-            element = x.split(' = ')[1]
-            return str(element)
-
-
 def log_add(note, log_from, level):
     logging_level = log_level()  # identifies what the log level is in the config file
-    lines = config_load()
+    lines = config_load_v2()
     create_log_file = False
-    for x in lines:
-        if 'log_file_name' in x:
-            log_file = x.split('=')[1].strip()
-        if 'log_error_file_name' in x:
-            error_logs = x.split('=')[1].strip()
-        if 'create_log_file' in x:
-            create_log_file = x.split('=')[1].strip()
-            if create_log_file == 'True':
-                create_log_file = True
-            else:
-                create_log_file = False
+    log_file = lines['log_file_name']
+    error_logs = lines['log_error_file_name']
+    create_log_file = lines['create_log_file']
+    if create_log_file == 'True':
+        create_log_file = True
+    else:
+        create_log_file = False
     error_logs = error_logs
     log_file_exists = exists(log_file)
     error_log_file_exists = exists(error_logs)
@@ -120,13 +95,9 @@ def log_add(note, log_from, level):
 
 
 def log_level():
-    lines = config_load()
+    lines = config_load_v2()
     log_levels = ['VERBOSE', 'LOG+', 'INFO', 'ERROR', 'OFF']
-    for x in lines:
-        if 'log_level' in x:
-            log_level = x.split(' = ')[1]
-        if 'log_file_name' in x:
-            log_file = x.split('=')[1].strip()
+    log_level = lines['log_level']
     if log_level in log_levels:
         if log_level == 'VERBOSE':
             return 4
@@ -139,7 +110,7 @@ def log_level():
         elif log_level == 'OFF':
             return 0
     else:
-        with open(log_file, 'a') as f:
+        with open(lines['log_file'], 'a') as f:
             now = datetime.utcnow().isoformat()[:-3] + 'Z'
             full_note = ('[System Log ' +
                          now +
