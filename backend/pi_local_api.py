@@ -9,7 +9,12 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import threading
 import sys
+import os
 
+cwd = sys.argv[0]
+if '/' in cwd:
+    mvwd = cwd.split(str('/' +os.path.basename(__file__)))[0]
+    os.chdir(mvwd)
 sys.path.append('additional_py_files')
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})

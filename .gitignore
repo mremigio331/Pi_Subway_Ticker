@@ -162,3 +162,5 @@ cython_debug/
 .env.production.local
 
 *export_data *
+
+logs/

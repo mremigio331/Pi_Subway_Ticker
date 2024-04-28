@@ -6,8 +6,9 @@
     "scripts": {
         "build": "npm install && webpack --mode production",
         "start": "npm install && npm run build && node server.js",
-        "dev": "npm install && webpack serve --mode development",
-        "format": "prettier --write ."
+        "dev": "webpack serve --mode development",
+        "format": "prettier --write .",
+        "install": "npm install"
     },
     "keywords": [
         "webpack",

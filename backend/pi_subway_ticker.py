@@ -9,10 +9,10 @@ import os
 from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 from threading import Thread
 
-# cwd = sys.argv[0]
-# if '/' in cwd:
-#     mvwd = cwd.split('/backend/pi_subway_ticker.py')[0]
-#     os.chdir(mvwd)
+cwd = sys.argv[0]
+if '/' in cwd:
+    mvwd = cwd.split(str('/' +os.path.basename(__file__)))[0]
+    os.chdir(mvwd)
 sys.path.append('additional_py_files')
 
 
@@ -337,33 +337,33 @@ class nyc_subway():
 
             else:
                 if cycle_check is True:
-                    self.new_station = self.cycle_station
-                    station_check = common.station_check_v2(self.new_station)
+                    new_station = self.cycle_station
+                    station_check = common.station_check_v2(new_station)
                 else:
-                    self.new_station = common.config_load_v2()[
+                    new_station = common.config_load_v2()[
                         constants.STATION]
-                    station_check = common.station_check_v2(self.new_station)
+                    station_check = common.station_check_v2(new_station)
 
                 if station_check is True:
-                    if self.new_station != self.previous_station:
-                        self.station = self.new_station
-                        self.previous_station = self.new_station
+                    if new_station != self.previous_station:
+                        self.station = new_station
+                        self.previous_station = new_station
                         self.train_loading()
                         self.station_pos = 65
                         note = 'New Station: ' + self.station
                         common.log_add(note, 'Display', 2)
                     else:
-                        self.station = self.new_station
+                        self.station = new_station
                         note = 'No Station Change'
                         common.log_add(note, 'Display', 4)
 
                 else:
                     self.station_load_error = True
-                    note = 'ERROR: Station check result false, check spelling. Station in config: ' + self.new_station
+                    note = 'ERROR: Station check result false, check spelling. Station in config: ' + new_station
                     common.log_add(note, 'Display', 1)
 
-        except:
-            note = 'ERROR: Station load'
+        except Exception as e:
+            note = f'ERROR: Station load: {str(e)}'
             common.log_add(note, 'Display', 1)
 
     def subway_line_print(self, lines):
@@ -561,6 +561,7 @@ class nyc_subway():
         self.all_train_data = {}
         self.next_four_trains = {}
         self.loading = True
+        self.station = common.config_load_v2()['station']
         note = 'Train Info Loading'
         common.log_add(note, 'Display', 4)
 
