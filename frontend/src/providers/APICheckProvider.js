@@ -7,7 +7,6 @@ const initialState = {
     apiRetries: 2,
 };
 
-// Define reducer function
 const apiCheckReducer = (state, action) => {
     switch (action.type) {
         case INCREMENT_RETRIES:
@@ -19,10 +18,8 @@ const apiCheckReducer = (state, action) => {
     }
 };
 
-// Create context
 const APICheckContext = createContext();
 
-// Provider component
 export const APICheckProvider = ({ children }) => {
     const [apiCheckState, dispatch] = useReducer(apiCheckReducer, initialState);
 
@@ -33,7 +30,6 @@ export const APICheckProvider = ({ children }) => {
     return <APICheckContext.Provider value={{ apiCheckState, dispatch }}>{children}</APICheckContext.Provider>;
 };
 
-// Custom hook to access context
 export const useApiCheck = () => {
     const context = useContext(APICheckContext);
     if (!context) {

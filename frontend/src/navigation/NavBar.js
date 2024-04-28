@@ -73,12 +73,6 @@ export default () => {
                     title: 'Status',
                     items: [
                         {
-                            type: 'button',
-                            text: 'System Actions',
-                            href: '/system',
-                            onClick: handlePageClick,
-                        },
-                        {
                             id: 'apiErrorCount',
                             text: <ApiStatusIndicator currentAPIRetryCount={apiCheckState.apiRetries} />,
                         },
@@ -98,6 +92,6 @@ const ApiStatusIndicator = ({ currentAPIRetryCount }) => {
         case currentAPIRetryCount >= 5:
             return <StatusIndicator type="error">Local API</StatusIndicator>;
         default:
-            return ''; // Handle any other cases (optional)
+            return '';
     }
 };

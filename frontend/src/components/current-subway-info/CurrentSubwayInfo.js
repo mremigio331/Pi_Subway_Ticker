@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { Button, Container, Grid, Header, SpaceBetween } from '@cloudscape-design/components';
+import { useQuery } from '@tanstack/react-query';
+
 import { SubwayCards } from './SubwayCards';
 import { SubwayMap } from './SubwayMap';
 import { getNextFourTrains } from '../../services/API';
-import { TrainLogos } from './SubwayLogos';
+import { TrainLogos } from '../../utility/SubwayLogos';
 import { getRandomTrainLogos } from '../loading/TrainsLoading';
 import { useApiCheck, INCREMENT_RETRIES, RESET_RETRIES } from '../../providers/APICheckProvider';
 
@@ -36,44 +38,28 @@ const LOADING_INFO = {
 };
 
 export const CurrentSubwayInfo = () => {
-    const [trainItems, setTrainItems] = React.useState(LOADING_INFO);
     const [loadingTrains, setLoadingTrains] = React.useState([]);
     const { apiCheckState, dispatch } = useApiCheck(); // Accessing API check state and dispatch function
     const [currentCenterMap, setCurrentCenterMap] = React.useState({ lat: 40.7831, lon: -73.9712 });
     const [mapInitialized, setMapInitialized] = React.useState(false);
 
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    console.log(apiCheckState);
-
-    // Function to fetch train data
-    const fetchData = async () => {
-        try {
-            const data = await getNextFourTrains();
-            console.log(data);
-            data !== undefined && setTrainItems(data);
-            dispatch({ type: RESET_RETRIES }); // Reset retries on successful API call
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            dispatch({ type: INCREMENT_RETRIES }); // Increment retries on API error
-        }
-    };
-
-    useEffect(() => {
-        if (apiCheckState.apiRetries < 10) {
-            const fetchDataAfterDelay = () => {
-                setTimeout(() => {
-                    fetchData();
-                }, 6000);
-            };
-
-            const intervalId = fetchDataAfterDelay();
-
-            return () => clearInterval(intervalId);
-        } else {
-            console.log('API retries limit reached. Stopping API calls.');
-        }
-    }, [apiCheckState.apiRetries]);
+    const {
+        data: trainItems,
+        isLoading,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ['getNextFourTrains'],
+        queryFn: getNextFourTrains,
+        onSuccess: () => dispatch({ type: RESET_RETRIES }),
+        onError: () => dispatch({ type: INCREMENT_RETRIES }),
+        retry: 10,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        refetchInterval: apiCheckState.apiRetries < 10 ? 6000 : false,
+        initialData: LOADING_INFO,
+    });
+    console.log(trainItems);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -102,6 +88,7 @@ export const CurrentSubwayInfo = () => {
                             >
                                 Center Map
                             </Button>
+                            
                         }
                     >
                         {trainItems.current_station.stop_name || 'Loading'}
@@ -145,7 +132,7 @@ export const CurrentSubwayInfo = () => {
                 <SubwayCards trainItems={trainItems.next_four} isMobileDevice={isMobileDevice} />
             )}
             <SubwayMap
-                currentStation={trainItems.current_station.stop_name}
+                currentStation={trainItems.current_station}
                 currentCenterMap={currentCenterMap}
                 mapInitialized={mapInitialized}
                 setMapInitialized={setMapInitialized}
@@ -209,7 +196,7 @@ export const CurrentSubwayInfo = () => {
                 )}
             </SpaceBetween>
             <SubwayMap
-                currentStation={trainItems.current_station.stop_name}
+                currentStation={trainItems.current_station}
                 currentCenterMap={currentCenterMap}
                 mapInitialized={mapInitialized}
                 setMapInitialized={setMapInitialized}

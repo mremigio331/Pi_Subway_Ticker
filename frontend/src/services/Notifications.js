@@ -103,7 +103,6 @@ export const NotificationsProvider = ({ children }) => {
     const location = useLocation();
     const [notifications, dispatchNotification] = useReducer(notificationsReducer, []);
 
-    // Reset the transient Notifications when a user navigates
     useEffect(() => {
         dispatchNotification({
             type: NotificationConstants.CLEAR_PREVIOUS_NOTIFICATIONS,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, ContentLayout, Header, SpaceBetween } from '@cloudscape-design/components';
-import { CodeView } from "@cloudscape-design/code-view";
+import { CodeView } from '@cloudscape-design/code-view';
 
 const SystemActions = () => {
     const [output, setOutput] = useState('');
@@ -13,7 +13,7 @@ const SystemActions = () => {
         const eventSource = new EventSource(`http://devpi.local:5000/system/${path}`);
 
         eventSource.onmessage = (event) => {
-            setOutput(prevOutput => prevOutput + event.data);
+            setOutput((prevOutput) => prevOutput + event.data);
         };
 
         eventSource.onerror = (error) => {
@@ -43,7 +43,6 @@ const SystemActions = () => {
                     </Header>
                 }
             >
-                {/* Render the streamed data */}
                 <pre>{output}</pre>
             </Container>
         </ContentLayout>

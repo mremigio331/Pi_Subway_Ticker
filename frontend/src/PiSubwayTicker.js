@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { AppLayout, ContentLayout, Flashbar, Header, SpaceBetween } from '@cloudscape-design/components';
+import { AppLayout, Flashbar } from '@cloudscape-design/components';
 import NavBar from './navigation/NavBar';
 
 import { Home } from './pages/home/Home';
@@ -8,8 +8,7 @@ import NotFoundPage from './pages/PageNotFound';
 import SystemActions from './pages/SystemActions';
 
 import { Routes, Route, useParams } from 'react-router-dom';
-import { getNotificationsContext } from './services/Notifications'; // Fixed function name
-
+import { getNotificationsContext } from './services/Notifications';
 const PageRoutes = () => {
     const { location } = useParams();
     return (
@@ -23,9 +22,7 @@ const PageRoutes = () => {
 };
 export const PiSubwayTicker = () => {
     document.title = 'Pi Subway Ticker';
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    const { notifications } = getNotificationsContext(); // Fixed function call
+    const { notifications } = getNotificationsContext(); 
 
     return (
         <div>

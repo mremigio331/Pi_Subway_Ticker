@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getAllStations, updateConfig, updateCurrentStation } from '../../services/API';
 import {
-    Cards,
-    Container,
     Button,
     Box,
     Header,
-    Link,
     Modal,
-    Popover,
-    Spinner,
     Select,
     SpaceBetween,
     Textarea,
@@ -19,7 +14,6 @@ import { useQuery } from '@tanstack/react-query';
 import {
     getNotificationsContext,
     NotificationConstants,
-    enhanceMessagesWithDismissAction,
 } from '../../services/Notifications'; // Updated import
 import { v4 as uuidv4 } from 'uuid';
 
@@ -39,7 +33,7 @@ export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, 
         queryFn: getAllStations,
     });
 
-    const { dismissNotification, pushNotification, modifyNotificationContent } = getNotificationsContext(); // Updated usage
+    const { dismissNotification, pushNotification, modifyNotificationContent } = getNotificationsContext();
 
     const handleUpdateClick = async () => {
         const message_id = uuidv4();

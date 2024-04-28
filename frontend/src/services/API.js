@@ -34,10 +34,8 @@ export const getNextFourTrains = async () => {
     } catch (error) {
         console.error(error);
         if (error.response && error.response.status >= 400 && error.response.status < 600) {
-            // Return response data for any 4xx or 5xx status code
             return error.response.data;
         } else {
-            // Re-throw the error for other types of errors
             throw error;
         }
     }
@@ -51,10 +49,8 @@ export const getCurrentStation = async () => {
     } catch (error) {
         console.error(error);
         if (error.response && error.response.status >= 400 && error.response.status < 600) {
-            // Return response data for any 4xx or 5xx status code
             return error.response.data;
         } else {
-            // Re-throw the error for other types of errors
             throw error;
         }
     }
@@ -68,10 +64,8 @@ export const getCurrentSettings = async () => {
     } catch (error) {
         console.error(error);
         if (error.response && error.response.status >= 400 && error.response.status < 600) {
-            // Return response data for any 4xx or 5xx status code
             return error.response.data;
         } else {
-            // Re-throw the error for other types of errors
             return error.message;
         }
     }
@@ -100,17 +94,15 @@ export const updateConfig = async (configType, value) => {
             {},
             {
                 headers: {
-                    value: value.toString(), // Convert value to string if it's not already
+                    value: value.toString(),
                 },
             },
         );
         return response;
     } catch (error) {
         if (error.response && error.response.status >= 400 && error.response.status < 600) {
-            // Return response data for any 4xx or 5xx status code
             return error.response.data;
         } else {
-            // Re-throw the error for other types of errors
             throw error;
         }
     }
@@ -125,8 +117,8 @@ export const updateEnabledStation = async (station, enabled) => {
             {},
             {
                 headers: {
-                    station: station.label, // Use single quotes for header names
-                    enabled: enabled.toString(), // Convert enabled to string if it's not already
+                    station: station.label, 
+                    enabled: enabled.toString(),
                 },
             },
         );
@@ -134,10 +126,8 @@ export const updateEnabledStation = async (station, enabled) => {
     } catch (error) {
         console.error(error);
         if (error.response && error.response.status >= 400 && error.response.status < 600) {
-            // Return response data for any 4xx or 5xx status code
             return error.response.data;
         } else {
-            // Re-throw the error for other types of errors
             throw error;
         }
     }
@@ -147,8 +137,6 @@ export const updateCurrentStation = async (station) => {
     const requestURL = `http://${apiEndpoint}:5000/trains/current_station/update`;
 
     let headers = {};
-    // curl -i -X PUT -H "station: Times Sq-42 St - R16" -H "cycle: false" http://${apiEndpoint}:5000/trains/current_station
-    // curl -i -X PUT -H "force_change_station: 103 St - 119" -H "cycle: true" http://${apiEndpoint}:5000/trains/current_station
 
     headers['force_change_station'] = station;
     headers['cycle'] = 'true';
@@ -159,10 +147,8 @@ export const updateCurrentStation = async (station) => {
     } catch (error) {
         console.error(error);
         if (error.response && error.response.status >= 400 && error.response.status < 600) {
-            // Return response data for any 4xx or 5xx status code
             return error.response.data;
         } else {
-            // Re-throw the error for other types of errors
             throw error;
         }
     }
@@ -175,15 +161,14 @@ export const updatePi = () => {
         const eventSource = new EventSource('http://${apiEndpoint}:5000/system/update/pi');
 
         eventSource.onmessage = (event) => {
-            resolve(event.data); // Resolve the Promise with each chunk of text data as it arrives
+            resolve(event.data); 
         };
 
         eventSource.onerror = (error) => {
-            reject(error); // Reject the Promise if an error occurs
+            reject(error); 
         };
     });
 };
-
 
 export const restartPi = async () => {
     try {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Cards, Box, ColumnLayout, Header, SpaceBetween } from '@cloudscape-design/components';
 
-import { TrainLogos } from './SubwayLogos';
+import { TrainLogos } from '../../utility/SubwayLogos';
 
 const getTextColor = (time) => {
     return time === 0 ? 'gold' : 'green';

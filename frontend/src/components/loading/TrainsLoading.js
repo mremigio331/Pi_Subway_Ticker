@@ -1,4 +1,4 @@
-import { TrainLogos } from '../current-subway-info/SubwayLogos';
+import { TrainLogos } from '../../utility/SubwayLogos';
 
 export const getRandomTrainLogos = () => {
     const numLogosToSelect = 14;
@@ -6,7 +6,6 @@ export const getRandomTrainLogos = () => {
 
     const trainNames = Object.keys(TrainLogos);
 
-    // Generate 10 unique random indices
     const randomIndices = [];
     while (randomIndices.length < numLogosToSelect) {
         const randomIndex = Math.floor(Math.random() * trainNames.length);
@@ -15,7 +14,6 @@ export const getRandomTrainLogos = () => {
         }
     }
 
-    // Push the corresponding logos to the selectedLogos array
     randomIndices.forEach((index) => {
         const trainName = trainNames[index];
         selectedLogos.push(TrainLogos[trainName]);
