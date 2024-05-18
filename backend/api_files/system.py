@@ -28,7 +28,8 @@ def system_update():
     #        yield line.strip() + '\n'  # Yield each line of output with a newline character
     #
     # Return a response object that streams the output
-    # return Response(stream_with_context(generate()), content_type='text/event-stream')
+    # return Response(stream_with_context(generate()),
+    # content_type='text/event-stream')
 
 
 def pi_update():

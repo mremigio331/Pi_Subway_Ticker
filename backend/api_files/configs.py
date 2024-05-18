@@ -7,11 +7,13 @@ from flask import jsonify, request
 def get_all_configs():
     if request.method == constants.GET:
         # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/config
-        # curl -i -X PUT -H "Content-Type: application/json" http://localhost:5000/config
+        # curl -i -X PUT -H "Content-Type: application/json"
+        # http://localhost:5000/config
         try:
             all_config = common.open_json_file(constants.CONFIG_FILE)
             config_list = common.dict_to_list_of_dicts(all_config)
-            return jsonify(config_list), 200, {'Content-Type': 'application/json'}
+            return jsonify(config_list), 200, {
+                'Content-Type': 'application/json'}
         except Exception as e:
             error = str(e)
             return jsonify(error), 500, {'Content-Type': 'application/json'}
@@ -26,7 +28,8 @@ def specific_config(config):
                 'requested_config': config,
                 'value': all_config[config]
             }
-            return jsonify(return_dict), 200, {'Content-Type': 'application/json'}
+            return jsonify(return_dict), 200, {
+                'Content-Type': 'application/json'}
         except Exception as e:
             error = str(e)
             return jsonify(error), 500, {'Content-Type': 'application/json'}
@@ -40,7 +43,8 @@ def specific_config(config):
             current_value = all_configs[config]
             new_value = ''
             if config in constants.CONFIG_BOOL_OPTIONS:
-                # curl -i -X PUT -H "value: true" http://localhost:5000/configs/cycle
+                # curl -i -X PUT -H "value: true"
+                # http://localhost:5000/configs/cycle
                 new_value = common.str_to_bool(
                     request.headers.get(constants.VALUE))
             else:

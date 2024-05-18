@@ -11,7 +11,7 @@ from threading import Thread
 
 cwd = sys.argv[0]
 if '/' in cwd:
-    mvwd = cwd.split(str('/' +os.path.basename(__file__)))[0]
+    mvwd = cwd.split(str('/' + os.path.basename(__file__)))[0]
     os.chdir(mvwd)
 sys.path.append('additional_py_files')
 
@@ -43,7 +43,7 @@ class nyc_subway():
             cycle_check = common.config_load_v2()['cycle']
             note = 'Cycle is set to ' + str(cycle_check)
             common.log_add(note, 'System', 1)
-            if cycle_check == True:
+            if cycle_check:
                 self.cycle_station = sc.random_station_v2()
                 note = 'Random station selected: ' + self.cycle_station
                 common.log_add(note, 'System', 1)
@@ -205,7 +205,7 @@ class nyc_subway():
                     self.location_restart()
                 else:
                     pass
-            except:
+            except BaseException:
                 pass
 
     def fonts(self):
@@ -251,7 +251,7 @@ class nyc_subway():
         Thread(target=self.export_all_data).start()
 
     def export_all_data(self):
-        while self.run_status == True:
+        while self.run_status:
             self.next_four_trains = [
                 {
                     'train': self.train_1,
@@ -276,7 +276,10 @@ class nyc_subway():
             ]
             try:
                 common.all_data_to_json(
-                    self.loading, self.station, self.next_four_trains, self.all_train_data)
+                    self.loading,
+                    self.station,
+                    self.next_four_trains,
+                    self.all_train_data)
                 time.sleep(5)
 
             except Exception as e:

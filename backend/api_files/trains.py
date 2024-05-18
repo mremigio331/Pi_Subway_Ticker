@@ -7,7 +7,8 @@ from flask import jsonify, request
 def get_current_station():
     if request.method == constants.GET:
         # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/trains/current_station
-        # curl -i -X PUT -H "Content-Type: application/json" http://localhost:5000/trains/current_station
+        # curl -i -X PUT -H "Content-Type: application/json"
+        # http://localhost:5000/trains/current_station
         try:
             all_trains_data = common.open_json_file(constants.API_EXPORT_FILE)
             current_station = {
@@ -28,7 +29,8 @@ def get_current_station():
 
 def update_current_station():
     # curl -i -X PUT -H "station: Times Sq-42 St - R16" -H "cycle: false" http://localhost:5000/trains/current_station
-    # curl -i -X PUT -H "force_change_station: 103 St - 119" -H "cycle: true" http://localhost:5000/trains/current_station
+    # curl -i -X PUT -H "force_change_station: 103 St - 119" -H "cycle: true"
+    # http://localhost:5000/trains/current_station
     if request.method == constants.PUT:
         if (
             (constants.STATION not in request.headers)
@@ -159,7 +161,8 @@ def update_current_station():
 
 def get_next_four():
     if request.method == constants.GET:
-        # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/trains/next_four
+        # curl -i -X GET -H "Content-Type: application/json"
+        # http://localhost:5000/trains/next_four
         try:
             all_trains_data = common.open_json_file(constants.API_EXPORT_FILE)
             next_four_info = {
@@ -181,7 +184,8 @@ def get_next_four():
 
 def get_all_trains_data():
     if request.method == constants.GET:
-        # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/trains/all_data
+        # curl -i -X GET -H "Content-Type: application/json"
+        # http://localhost:5000/trains/all_data
         try:
             all_trains_data = common.open_json_file(constants.API_EXPORT_FILE)
             return (

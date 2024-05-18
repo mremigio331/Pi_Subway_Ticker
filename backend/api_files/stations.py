@@ -6,7 +6,8 @@ from flask import jsonify, request
 
 def get_all_train_stations():
     if request.method == constants.GET:
-        # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/stations/full_info
+        # curl -i -X GET -H "Content-Type: application/json"
+        # http://localhost:5000/stations/full_info
         try:
             all_train_stations = common.stations_load_v2()
             return (
@@ -29,7 +30,8 @@ def specific_station_info():
         return jsonify({'error': 'Station header is missing'}), 400
 
     if request.method == constants.GET:
-        # curl -i -X GET -H "station: 161 St-Yankee Stadium - D11" http://localhost:5000/stations/specific_station
+        # curl -i -X GET -H "station: 161 St-Yankee Stadium - D11"
+        # http://localhost:5000/stations/specific_station
         try:
             specific_train_station = request.headers.get(constants.STATION)
             if common.station_check_v2(specific_train_station) is False:
@@ -58,7 +60,8 @@ def specific_station_info():
             )
 
     if request.method == constants.PUT:
-        # curl -i -X PUT -H "station: 161 St-Yankee Stadium - D11" -H "enabled: false" http://localhost:5000/stations/specific_station
+        # curl -i -X PUT -H "station: 161 St-Yankee Stadium - D11" -H "enabled:
+        # false" http://localhost:5000/stations/specific_station
         if constants.ENABLED not in request.headers:
             return jsonify({'error': 'Enabled header is missing'}), 400
 
@@ -90,7 +93,8 @@ def specific_station_info():
                 ),
                 'updated_data': highlighted_station
             }
-            return jsonify(return_message), 200, {'Content-Type': 'application/json'}
+            return jsonify(return_message), 200, {
+                'Content-Type': 'application/json'}
 
         except Exception as e:
             error = str(e)

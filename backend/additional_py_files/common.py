@@ -25,7 +25,7 @@ def open_json_file(file_name, max_timeout=3):
 def config_load_v2():
     try:
         return open_json_file('trains_config.json')
-    except:
+    except BaseException:
         note = 'ERROR loading configs'
         log_add(note, 'Common', 1)
 
@@ -102,9 +102,10 @@ def log_level():
     else:
         with open(lines['log_file'], 'a') as f:
             now = datetime.utcnow().isoformat()[:-3] + 'Z'
-            full_note = ('[System Log ' +
-                         now +
-                         "] Config file contains the following errors: ['Invalid Log Level Input']")
+            full_note = (
+                '[System Log ' +
+                now +
+                "] Config file contains the following errors: ['Invalid Log Level Input']")
 
             full_note = str(full_note)
             f.write(full_note + '\n')
@@ -160,7 +161,7 @@ def stations_load():
 def stations_load_v2():
     try:
         return open_json_file('data/stations_config.json')
-    except:
+    except BaseException:
         note = 'There was an issue opening up the train stations'
         log_add(note, 'Common', 1)
         return False
@@ -204,7 +205,8 @@ def str_to_bool(string):
     # Convert the string to lowercase for case-insensitive comparison
     string_lower = string.lower()
 
-    # Check if the string is "true" or "false" and return the corresponding boolean value
+    # Check if the string is "true" or "false" and return the corresponding
+    # boolean value
     if string_lower == 'true':
         return True
     elif string_lower == 'false':

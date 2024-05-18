@@ -9,7 +9,7 @@ import additional_py_files.common as common
 import random
 try:
     from google.transit import gtfs_realtime_pb2
-except:
+except BaseException:
     sys.path.append(
         '/home/pi/.local/lib/python3.9/site-packages/google/transit')
     import gtfs_realtime_pb2
@@ -49,8 +49,7 @@ def all_train_data():
                  {'line': '1234567',
                   'link': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs'},
                  {'line': 'SIR',
-                  'link': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si'}
-                 ]
+                  'link': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si'}]
     all_train_info = []
     for x in api_links:
         trains = api_pull(x['line'], x['link'])
@@ -72,7 +71,7 @@ def data_dump(train_info):
             json.dump(data_dict, json_file, indent=4)
         note = 'Successfully dump train data to a json'
         common.log_add(note, 'API', 3)
-    except:
+    except BaseException:
         note = 'ERROR converting train data to a json'
         common.log_add(note, 'API', 1)
 
@@ -103,7 +102,7 @@ def next_train_in(station, data):
                                       'arrival': arrival_time,
                                       'station_info': y}
                         train_stops.append(route_info)
-        except:
+        except BaseException:
             pass
     train_stops.sort(key=lambda k: k['arrival'])
     note = 'Next train in complete'
@@ -121,7 +120,11 @@ def next_train_in_v2(station, data):
         try:
             for y in x['tripUpdate']['stopTimeUpdate']:
                 stop_id = y['stopId']
-                if stop_id in station_object['stop_ids'] or str(stop_id + 'S') in station_object['stop_ids'] or str(stop_id + 'N') in station_object['stop_ids']:
+                if stop_id in station_object['stop_ids'] or str(
+                        stop_id +
+                        'S') in station_object['stop_ids'] or str(
+                        stop_id +
+                        'N') in station_object['stop_ids']:
                     route = x['tripUpdate']['trip']['routeId']
                     tripID = x['tripUpdate']['trip']['tripId']
                     final_dest = x['tripUpdate']['stopTimeUpdate'][-1]['stop_name']
@@ -138,7 +141,7 @@ def next_train_in_v2(station, data):
                                       'arrival': arrival_time,
                                       'station_info': y}
                         train_stops.append(route_info)
-        except:
+        except BaseException:
             pass
     train_stops.sort(key=lambda k: k['arrival'])
     note = 'Next train in complete'
@@ -169,7 +172,7 @@ def subway_cleanup(train_info):
         try:
             x['tripUpdate']['stopTimeUpdate']
             stop_time_update.append(x)
-        except:
+        except BaseException:
             pass
     for x in stop_time_update:
         for y in x['tripUpdate']['stopTimeUpdate']:
@@ -177,6 +180,6 @@ def subway_cleanup(train_info):
                 stop_id = y['stopId']
                 stop_name = subway_stops.loc[stop_id][1]
                 y.update({'stop_name': stop_name})
-            except:
+            except BaseException:
                 pass
     return stop_time_update

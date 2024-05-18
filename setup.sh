@@ -90,15 +90,8 @@ set_executable_permissions() {
 # Add cron job if it does not already exist
 add_cron_job() {
     echo "Adding cron job..."
-<<<<<<< HEAD
-    local job_command="@reboot sleep 30 && cd /home/$USER/Pi_Subway_Ticker && ./subway_start.sh"
-=======
-<<<<<<< HEAD
-    local job_command="@reboot sleep 30 && cd /home/$USER/Pi_Subway_Ticker && ./subway_start.sh"
-=======
     local job_command="@reboot sleep 30 && cd /home/$USER/Pi_Subway_Ticker && ./subway_start.sh >> /home/$USER/Pi_Subway_Ticker/subway_start.log 2>&1"
->>>>>>> ede0880 (Small changes to the setup)
->>>>>>> 5503703 (Small changes to the setup)
+
     if ! (sudo crontab -l 2>/dev/null | grep -Fq -- "$job_command"); then
         ( crontab -l 2>/dev/null; echo "$job_command") | crontab -
         echo "Cron job added."
