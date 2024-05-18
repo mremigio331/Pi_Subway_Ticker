@@ -10,10 +10,13 @@ sudo apt install python3-protobuf -y
 sudo apt install python3-requests -y
 sudo apt install python3-flask -y
 sudo apt install python3-flask-cors -y
-pip install --upgrade google-api-python-client
-pip install --upgrade gtfs-realtime-bindings
+pip install --upgrade google-api-python-client --break-system-package
+pip install --upgrade gtfs-realtime-bindings --break-system-package
 sudo apt install npm -y
 chmod +x backend/pi_local_api.py
+cd frontend
+npm install webpack-dev-server --save-dev
+
 echo -e "//edited from initial setup\nexport const apiEndpoint = '$HOSTNAME.local'" > frontend/src/configs/apiConfig.js 
 cd
 sudo apt-get install -y git python3-dev python3-pillow
