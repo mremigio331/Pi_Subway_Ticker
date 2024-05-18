@@ -18,34 +18,6 @@ sys.path.append('additional_py_files')
 
 class nyc_subway():
 
-    def api_error(self):
-        top_line = '   **Error**'
-        second_line = 'API key load error. Please enter api key in trains.conf file.'
-        text_color = self.error_color
-        second_line_add_number = 0
-        start_number = 0
-        end_number = 15
-        lines = common.random_trains()
-        while True:
-            self.canvas.Clear()
-            graphics.DrawText(self.canvas, self.font, 64,
-                              7, text_color, top_line)
-            if (end_number + second_line_add_number) < (len(second_line) + 13):
-                print_text = second_line[(
-                    start_number + second_line_add_number):(end_number + second_line_add_number)]
-                graphics.DrawText(self.canvas, self.font, 64,
-                                  17, text_color, print_text)
-                second_line_add_number += 1
-            else:
-                print_text = second_line[(
-                    start_number + second_line_add_number):(end_number + second_line_add_number)]
-                graphics.DrawText(self.canvas, self.font, 54,
-                                  17, text_color, print_text)
-                second_line_add_number = 0
-            self.subway_line_print(lines)
-            time.sleep(1)
-            self.canvas = self.matrix.SwapOnVSync(self.canvas)
-
     def configs(self):
         self.run_status = True
         self.loading = True
@@ -271,18 +243,12 @@ class nyc_subway():
 
     def run(self):
         self.configs()
-        api_check = common.api_keys_check()
-        note = 'API Check = ' + str(api_check)
-        common.log_add(note, 'System', 2)
         self.cycle_station = common.config_load_v2()['station']
-        if api_check == True:
-            self.station_load()
-            Thread(target=self.data_pull).start()
-            Thread(target=self.display).start()
-            Thread(target=self.cycle).start()
-            Thread(target=self.export_all_data).start()
-        elif api_check == False:
-            self.api_error()
+        self.station_load()
+        Thread(target=self.data_pull).start()
+        Thread(target=self.display).start()
+        Thread(target=self.cycle).start()
+        Thread(target=self.export_all_data).start()
 
     def export_all_data(self):
         while self.run_status == True:

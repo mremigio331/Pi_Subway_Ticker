@@ -19,9 +19,8 @@ from google.protobuf.json_format import MessageToDict
 def api_pull(line, link):
     note = 'Conducting API pull of ' + line
     common.log_add(note, 'API', 4)
-    api_key = common.config_load_v2()['api_key']
     feed = gtfs_realtime_pb2.FeedMessage()
-    response = requests.get(link, headers={'x-api-key': str(api_key)})
+    response = requests.get(link)
     feed.ParseFromString(response.content)
     feed = MessageToDict(feed)
     note = 'Cleaning info for ' + line

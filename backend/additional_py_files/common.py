@@ -8,16 +8,6 @@ from os.path import exists
 sys.path.append('/home/pi/.local/lib/python3.9/site-packages/')
 
 
-def api_keys_check():
-    try:
-        if config_load_v2()['api_key'] != '':
-            return True
-        else:
-            return False
-    except:
-        return False
-
-
 def open_json_file(file_name, max_timeout=3):
     retries = 0
     while retries < max_timeout:
