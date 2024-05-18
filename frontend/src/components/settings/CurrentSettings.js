@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-    Cards,
-    Container,
-    Button,
-    Box,
-    Header,
-    Spinner,
-    SpaceBetween,
-} from '@cloudscape-design/components';
+import { Cards, Container, Button, Box, Header, Spinner, SpaceBetween } from '@cloudscape-design/components';
 import { useQuery } from '@tanstack/react-query';
 
 import { UpdateSettingsModal, INITIAL_SETTINGS_MODAL_STATE, settingsReducer } from './UpdateSettingsModal';
@@ -49,8 +41,7 @@ const ConfigsCards = ({ configs, isLoading, isRefetching, refetch }) => {
                     sections: [
                         {
                             id: 'value',
-                            content: (item) =>
-                                item.type == 'api_key' ? item.value.replace(/./g, '*') : item.value.toString(),
+                            content: (item) => item.value.toString(),
                         },
                     ],
                 }}

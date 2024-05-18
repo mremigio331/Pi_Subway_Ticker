@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getAllStations, updateConfig, updateCurrentStation } from '../../services/API';
-import {
-    Button,
-    Box,
-    Header,
-    Modal,
-    Select,
-    SpaceBetween,
-    Textarea,
-    TextContent,
-} from '@cloudscape-design/components';
+import { Button, Box, Header, Modal, Select, SpaceBetween, Textarea, TextContent } from '@cloudscape-design/components';
 import { useQuery } from '@tanstack/react-query';
-import {
-    getNotificationsContext,
-    NotificationConstants,
-} from '../../services/Notifications'; // Updated import
+import { getNotificationsContext, NotificationConstants } from '../../services/Notifications'; // Updated import
 import { v4 as uuidv4 } from 'uuid';
 
 export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, refetch }) => {
+    console.log('settingsState', settingsState);
     const selectedIndex = configs.findIndex((config) => config.type === settingsState.selectedSetting);
     const [value, setValue] = useState('');
     const [selectedOption, setSelectedOption] = useState({});
@@ -139,7 +128,7 @@ export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, 
 
 export const INITIAL_SETTINGS_MODAL_STATE = {
     visible: false,
-    selectedSetting: 'api_key',
+    selectedSetting: 'station',
 };
 
 export const settingsReducer = (settingsSate, action) => {
@@ -156,24 +145,11 @@ const ConfigsSelect = ({
     setValue,
 }) => {
     let options = [];
-    switch (selectedConfig.type.toString()) {
-        case 'cycle':
-            options = BOOL_TYPE;
-            break;
-        case 'create_log_file':
-            options = BOOL_TYPE;
-            break;
-        case 'station':
-            options =
-                statusType === 'finished'
-                    ? Object.entries(allTrainsData)
-                          .filter(([key, value]) => value.enabled === true)
-                          .map(([key, value]) => ({ label: key, value: key }))
-                    : [];
-            break;
-        default:
-            options = [];
-            break;
+    console.log('selectedConfig', selectedConfig);
+    if (statusType === 'finished' && allTrainsData) {
+        options = Object.entries(allTrainsData)
+            .filter(([key, value]) => value.enabled === true)
+            .map(([key, value]) => ({ label: key, value: key }));
     }
 
     return (

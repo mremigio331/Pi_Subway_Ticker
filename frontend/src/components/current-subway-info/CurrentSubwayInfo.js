@@ -88,7 +88,6 @@ export const CurrentSubwayInfo = () => {
                             >
                                 Center Map
                             </Button>
-                            
                         }
                     >
                         {trainItems.current_station.stop_name || 'Loading'}

@@ -62,7 +62,9 @@ export const SubwayMap = ({ currentStation, currentCenterMap, mapInitialized, se
 
         const addMarkers = (markersArray, currentStation) => {
             markersArray.forEach((markerData) => {
-                const isCurrentCenter = (markerData.complexId === currentStation.complex_id) && (markerData.stationName === currentStation.stop_name);
+                const isCurrentCenter =
+                    markerData.complexId === currentStation.complex_id &&
+                    markerData.stationName === currentStation.stop_name;
 
                 const icon = L.icon({
                     iconUrl: isCurrentCenter ? selectedMarker : notSelectedMarker,

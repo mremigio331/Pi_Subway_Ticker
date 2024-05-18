@@ -22,7 +22,7 @@ const PageRoutes = () => {
 };
 export const PiSubwayTicker = () => {
     document.title = 'Pi Subway Ticker';
-    const { notifications } = getNotificationsContext(); 
+    const { notifications } = getNotificationsContext();
 
     return (
         <div>

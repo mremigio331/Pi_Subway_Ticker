@@ -117,7 +117,7 @@ export const updateEnabledStation = async (station, enabled) => {
             {},
             {
                 headers: {
-                    station: station.label, 
+                    station: station.label,
                     enabled: enabled.toString(),
                 },
             },
@@ -161,11 +161,11 @@ export const updatePi = () => {
         const eventSource = new EventSource('http://${apiEndpoint}:5000/system/update/pi');
 
         eventSource.onmessage = (event) => {
-            resolve(event.data); 
+            resolve(event.data);
         };
 
         eventSource.onerror = (error) => {
-            reject(error); 
+            reject(error);
         };
     });
 };
