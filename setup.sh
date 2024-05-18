@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Get the current user
+USER=$(whoami)
+
 # Update and upgrade system packages
 install_system_packages() {
     echo "Updating and upgrading system packages..."
@@ -43,18 +46,16 @@ install_python_packages() {
 # Clone and setup external projects like rpi-rgb-led-matrix
 setup_external_projects() {
     echo "Setting up external projects..."
-    if [ ! -d "~/rpi-rgb-led-matrix" ]; then
-        git clone https://github.com/hzeller/rpi-rgb-led-matrix.git ~/rpi-rgb-led-matrix
-        cd ~/rpi-rgb-led-matrix
+    if [ ! -d "/home/$USER/rpi-rgb-led-matrix" ]; then
+        git clone https://github.com/hzeller/rpi-rgb-led-matrix.git /home/$USER/rpi-rgb-led-matrix
+        cd /home/$USER/rpi-rgb-led-matrix
         make build-python PYTHON=$(which python3)
         sudo make install-python PYTHON=$(which python3)
         echo "rpi-rgb-led-matrix set up."
-        cd 
-        cp -r 
     else
         echo "rpi-rgb-led-matrix already installed."
     fi
-    cp -r rpi-rgb-led-matrix/bindings/python/rgbmatrix/ Pi_Subway_Ticker/backend/
+    cp -r /home/$USER/rpi-rgb-led-matrix/bindings/python/rgbmatrix/ /home/$USER/Pi_Subway_Ticker/backend/
 }
 
 # Setup port forwarding
@@ -72,26 +73,26 @@ setup_port_forwarding() {
 # Install frontend npm packages
 install_frontend_packages() {
     echo "Installing frontend npm packages..."
-    cd ~/Pi_Subway_Ticker/frontend
+    cd /home/$USER/Pi_Subway_Ticker/frontend
     npm install
-    echo "//edited from initial setup\nexport const apiEndpoint = '$HOSTNAME.local'" > src/configs/apiConfig.js
+    printf "//edited from initial setup\nexport const apiEndpoint = '$HOSTNAME.local'\n" > /home/$USER/Pi_Subway_Ticker/frontend/src/configs/apiConfig.js
     echo "Frontend npm packages installed."
 }
 
 # Set executable permissions
 set_executable_permissions() {
     echo "Setting executable permissions..."
-    chmod +x ~/Pi_Subway_Ticker/backend/pi_local_api.py
-    chmod +x ~/Pi_Subway_Ticker/subway_start.sh
+    chmod +x /home/$USER/Pi_Subway_Ticker/backend/pi_local_api.py
+    chmod +x /home/$USER/Pi_Subway_Ticker/subway_start.sh
     echo "Executable permissions set."
 }
 
 # Add cron job if it does not already exist
 add_cron_job() {
     echo "Adding cron job..."
-    local job_command="@reboot sleep 30 && cd ~/Pi_Subway_Ticker && ./subway_start.sh "
+    local job_command="@reboot sleep 30 && cd /home/$USER/Pi_Subway_Ticker && ./subway_start.sh"
     if ! (sudo crontab -l 2>/dev/null | grep -Fq -- "$job_command"); then
-        (sudo crontab -l 2>/dev/null; echo "$job_command") | sudo crontab -
+        ( crontab -l 2>/dev/null; echo "$job_command") | crontab -
         echo "Cron job added."
     else
         echo "Cron job already exists."
@@ -111,12 +112,20 @@ reboot_system() {
     sudo reboot
 }
 
+# Change ownership of the project directory to the current user
+change_ownership() {
+    echo "Changing ownership of the project directory to the current user..."
+    sudo chown -R $USER:$USER /home/$USER/Pi_Subway_Ticker
+    echo "Ownership changed."
+}
+
 # Execute all setup functions in the optimal order
 install_system_packages
 install_node
 install_python_packages
 setup_external_projects
 setup_port_forwarding
+change_ownership
 install_frontend_packages
 set_executable_permissions
 add_cron_job
