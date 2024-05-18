@@ -1,28 +1,123 @@
 #!/bin/bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install python3-pip -y
-sudo apt install libatlas-base-dev -y
-sudo apt install python3-google-api-python-client -y 
-sudo apt install python3-gtfs-realtime-bindings -y 
-sudo apt install python3-protobuf -y 
-sudo apt install python3-pandas -y
-sudo apt install python3-protobuf -y
-sudo apt install python3-requests -y
-sudo apt install python3-flask -y
-sudo apt install python3-flask-cors -y
-pip install --upgrade google-api-python-client --break-system-package
-pip install --upgrade gtfs-realtime-bindings --break-system-package
-sudo apt install npm -y
-chmod +x backend/pi_local_api.py
-cd frontend
-npm install webpack-dev-server --save-dev
 
-echo -e "//edited from initial setup\nexport const apiEndpoint = '$HOSTNAME.local'" > frontend/src/configs/apiConfig.js 
-cd
-sudo apt-get install -y git python3-dev python3-pillow
-git clone https://github.com/hzeller/rpi-rgb-led-matrix.git
-cd rpi-rgb-led-matrix
-make build-python PYTHON=$(which python3)
-sudo make install-python PYTHON=$(which python3)
-cd bindings/python/samples
-sudo python3 runtext.py --led-cols=64 --led-gpio-mapping=adafruit-hat --text="Setup Complete!"
+# Update and upgrade system packages
+install_system_packages() {
+    echo "Updating and upgrading system packages..."
+    sudo apt update && sudo apt upgrade -y
+    # Pre-seed answers for iptables-persistent installation
+    echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+    echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+    # Install required packages
+    sudo apt install -y python3-pip libatlas-base-dev python3-protobuf python3-pandas python3-requests python3-flask python3-flask-cors avahi-daemon git python3-dev python3-pillow iptables-persistent
+    echo "System packages installed."
+}
+
+# Check and install or upgrade Node.js to version 18.x
+install_node() {
+    echo "Checking for Node.js installation..."
+    if command -v node &>/dev/null; then
+        NODE_VERSION=$(node -v)
+        if [[ "$NODE_VERSION" == "v18."* ]]; then
+            echo "Node.js version 18 is already installed."
+            return
+        else
+            echo "Node.js is installed but not version 18, upgrading..."
+        fi
+    else
+        echo "Node.js is not installed. Installing..."
+    fi
+    sudo apt remove -y nodejs npm
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    sudo apt install -y nodejs
+    echo "Node.js version 18 has been installed."
+}
+
+# Install Python packages
+install_python_packages() {
+    echo "Installing Python packages..."
+    python3 -m pip install --upgrade pip
+    python3 -m pip install google-api-python-client gtfs-realtime-bindings
+    echo "Python packages installed."
+}
+
+# Clone and setup external projects like rpi-rgb-led-matrix
+setup_external_projects() {
+    echo "Setting up external projects..."
+    if [ ! -d "~/rpi-rgb-led-matrix" ]; then
+        git clone https://github.com/hzeller/rpi-rgb-led-matrix.git ~/rpi-rgb-led-matrix
+        cd ~/rpi-rgb-led-matrix
+        make build-python PYTHON=$(which python3)
+        sudo make install-python PYTHON=$(which python3)
+        echo "rpi-rgb-led-matrix set up."
+        cd 
+        cp -r 
+    else
+        echo "rpi-rgb-led-matrix already installed."
+    fi
+    cp -r rpi-rgb-led-matrix/bindings/python/rgbmatrix/ Pi_Subway_Ticker/backend/
+}
+
+# Setup port forwarding
+setup_port_forwarding() {
+    echo "Setting up port forwarding..."
+    if ! sudo iptables -t nat -C PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080 2>/dev/null; then
+        sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+        sudo netfilter-persistent save
+        echo "Port forwarding rule established."
+    else
+        echo "Port forwarding rule already exists."
+    fi
+}
+
+# Install frontend npm packages
+install_frontend_packages() {
+    echo "Installing frontend npm packages..."
+    cd ~/Pi_Subway_Ticker/frontend
+    npm install
+    echo "//edited from initial setup\nexport const apiEndpoint = '$HOSTNAME.local'" > src/configs/apiConfig.js
+    echo "Frontend npm packages installed."
+}
+
+# Set executable permissions
+set_executable_permissions() {
+    echo "Setting executable permissions..."
+    chmod +x ~/Pi_Subway_Ticker/backend/pi_local_api.py
+    chmod +x ~/Pi_Subway_Ticker/subway_start.sh
+    echo "Executable permissions set."
+}
+
+# Add cron job if it does not already exist
+add_cron_job() {
+    echo "Adding cron job..."
+    local job_command="@reboot sleep 30 && cd ~/Pi_Subway_Ticker && ./subway_start.sh "
+    if ! (sudo crontab -l 2>/dev/null | grep -Fq -- "$job_command"); then
+        (sudo crontab -l 2>/dev/null; echo "$job_command") | sudo crontab -
+        echo "Cron job added."
+    else
+        echo "Cron job already exists."
+    fi
+}
+
+# Controlled reboot with a 30-second countdown and an option to cancel
+reboot_system() {
+    echo "Preparing to reboot the system to ensure all configurations are applied..."
+    echo "Press Enter to reboot now or Ctrl+C to cancel."
+    
+    # Wait for the user to press Enter
+    read -p "Press Enter to continue..." -r
+    
+    # If user presses Enter, the script proceeds to reboot
+    echo "Rebooting now..."
+    sudo reboot
+}
+
+# Execute all setup functions in the optimal order
+install_system_packages
+install_node
+install_python_packages
+setup_external_projects
+setup_port_forwarding
+install_frontend_packages
+set_executable_permissions
+add_cron_job
+reboot_system

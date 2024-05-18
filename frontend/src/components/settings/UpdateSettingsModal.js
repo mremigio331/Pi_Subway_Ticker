@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAllStations, updateConfig, updateCurrentStation } from '../../services/API';
 import { Button, Box, Header, Modal, Select, SpaceBetween, Textarea, TextContent } from '@cloudscape-design/components';
 import { useQuery } from '@tanstack/react-query';
-import { getNotificationsContext, NotificationConstants } from '../../services/Notifications'; // Updated import
+import { getNotificationsContext, NotificationConstants } from '../../services/Notifications';
 import { v4 as uuidv4 } from 'uuid';
 
 export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, refetch }) => {
@@ -145,7 +145,6 @@ const ConfigsSelect = ({
     setValue,
 }) => {
     let options = [];
-    console.log('selectedConfig', selectedConfig);
     if (statusType === 'finished' && allTrainsData) {
         options = Object.entries(allTrainsData)
             .filter(([key, value]) => value.enabled === true)
@@ -168,7 +167,3 @@ const ConfigsSelect = ({
 };
 
 const DROPDOWN_TYPES = ['cycle', 'create_log_file', 'station'];
-const BOOL_TYPE = [
-    { label: 'true', value: true },
-    { label: 'false', value: false },
-];

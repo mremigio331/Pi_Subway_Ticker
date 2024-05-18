@@ -3,6 +3,8 @@
 # Maximum log file size in bytes
 MAX_LOG_SIZE=1000000  # 1MB
 
+cd ~/Pi_Subway_Ticker/
+
 board_command () {
     echo "Starting LED Board"
     echo "" > logs/board_logs.log  # Clear the log

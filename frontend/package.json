@@ -4,11 +4,10 @@
     "description": "",
     "main": "main.js",
     "scripts": {
-        "build": "npm install && webpack --mode production",
-        "start": "npm install && npm run build && node server.js",
+        "build": "webpack --mode production",
+        "start": "npm run build && node server.js",
         "dev": "webpack serve --mode development",
-        "format": "prettier --write .",
-        "install": "npm install"
+        "format": "prettier --write ."
     },
     "keywords": [
         "webpack",
