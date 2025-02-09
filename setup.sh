@@ -12,6 +12,8 @@ install_system_packages() {
     echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
     # Install required packages
     sudo apt install -y python3-pip libatlas-base-dev python3-protobuf python3-pandas python3-requests python3-flask python3-flask-cors avahi-daemon git python3-dev python3-pillow iptables-persistent
+    sudo apt install -y  python3-flasgger python3-pip python3-botocore python3-boto3 screen default-jdk wget curl unzip
+    sudo pip3 install fastapi uvicorn black watchdog --break-system-packages
     echo "System packages installed."
 }
 
@@ -38,8 +40,8 @@ install_node() {
 # Install Python packages
 install_python_packages() {
     echo "Installing Python packages..."
-    python3 -m pip install --upgrade pip
-    python3 -m pip install google-api-python-client gtfs-realtime-bindings
+    python3 -m pip install --upgrade pip --break-system-packages
+    python3 -m pip install google-api-python-client gtfs-realtime-bindings Cython --break-system-packages
     echo "Python packages installed."
 }
 
@@ -49,8 +51,20 @@ setup_external_projects() {
     if [ ! -d "/home/$USER/rpi-rgb-led-matrix" ]; then
         git clone https://github.com/hzeller/rpi-rgb-led-matrix.git /home/$USER/rpi-rgb-led-matrix
         cd /home/$USER/rpi-rgb-led-matrix
-        make build-python PYTHON=$(which python3)
-        sudo make install-python PYTHON=$(which python3)
+        
+        export PATH=$PATH:~/.local/bin
+        
+        # Build and install
+        if ! make build-python PYTHON=$(which python3); then
+            echo "Error: Failed to build. Ensure cython is installed and in the PATH."
+            exit 1
+        fi
+        
+        if ! sudo make install-python PYTHON=$(which python3); then
+            echo "Error: Failed to install. Ensure cython is installed and in the PATH."
+            exit 1
+        fi
+        
         echo "rpi-rgb-led-matrix set up."
     else
         echo "rpi-rgb-led-matrix already installed."
