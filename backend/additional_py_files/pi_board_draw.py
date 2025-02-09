@@ -1,10 +1,11 @@
 #!/bin/env python
 from rgbmatrix import graphics
 import sys
-sys.path.append('../')
+
+sys.path.append("../")
 
 
-class draw():
+class draw:
     def local_train(self, canvas, x, y, color):
         # Draws local train circle
         graphics.DrawLine(canvas, x + 2, y + 0, x + 6, y + 0, color)

@@ -1,65 +1,83 @@
 import additional_py_files.constants as constants
 import additional_py_files.common as common
 
-from flask import jsonify, request
+from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi.responses import JSONResponse
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+router = APIRouter()
 
 
-def get_all_configs():
-    if request.method == constants.GET:
-        # curl -i -X GET -H "Content-Type: application/json" http://localhost:5000/config
-        # curl -i -X PUT -H "Content-Type: application/json"
-        # http://localhost:5000/config
-        try:
-            all_config = common.open_json_file(constants.CONFIG_FILE)
-            config_list = common.dict_to_list_of_dicts(all_config)
-            return jsonify(config_list), 200, {
-                'Content-Type': 'application/json'}
-        except Exception as e:
-            error = str(e)
-            return jsonify(error), 500, {'Content-Type': 'application/json'}
+@router.get(
+    "/config",
+    summary="Get All Configs",
+    response_description="List of all configurations",
+)
+async def get_all_configs():
+    try:
+        all_config = common.open_json_file(constants.CONFIG_FILE)
+        config_list = common.dict_to_list_of_dicts(all_config)
+        logger.info("All configurations retrieved successfully")
+        return JSONResponse(content=config_list, status_code=200)
+    except Exception as e:
+        error = str(e)
+        logger.error(f"Error occurred: {error}")
+        raise HTTPException(status_code=500, detail=error)
 
 
-def specific_config(config):
-    if request.method == constants.GET:
-        # curl -i -X GET http://localhost:5000/configs/api_key
-        try:
-            all_config = common.open_json_file(constants.CONFIG_FILE)
-            return_dict = {
-                'requested_config': config,
-                'value': all_config[config]
-            }
-            return jsonify(return_dict), 200, {
-                'Content-Type': 'application/json'}
-        except Exception as e:
-            error = str(e)
-            return jsonify(error), 500, {'Content-Type': 'application/json'}
-    if request.method == constants.PUT:
-        try:
+@router.get(
+    "/configs/{config}",
+    summary="Get Specific Config",
+    response_description="Get a specific configuration",
+)
+async def specific_config(config: str):
+    try:
+        all_config = common.open_json_file(constants.CONFIG_FILE)
+        return_dict = {"requested_config": config, "value": all_config[config]}
+        logger.info(f"Configuration {config} retrieved successfully")
+        return JSONResponse(content=return_dict, status_code=200)
+    except Exception as e:
+        error = str(e)
+        logger.error(f"Error occurred: {error}")
+        raise HTTPException(status_code=500, detail=error)
 
-            if constants.VALUE not in request.headers:
-                return jsonify({'error': 'Value header is missing'}), 400
 
-            all_configs = common.open_json_file(constants.CONFIG_FILE)
-            current_value = all_configs[config]
-            new_value = ''
-            if config in constants.CONFIG_BOOL_OPTIONS:
-                # curl -i -X PUT -H "value: true"
-                # http://localhost:5000/configs/cycle
-                new_value = common.str_to_bool(
-                    request.headers.get(constants.VALUE))
-            else:
-                new_value = request.headers.get(constants.VALUE)
+@router.put(
+    "/configs/{config}",
+    summary="Update Specific Config",
+    response_description="Update a specific configuration",
+)
+async def update_specific_config(
+    config: str,
+    value: str = Query(..., description="The new value for the configuration"),
+):
+    try:
+        all_configs = common.open_json_file(constants.CONFIG_FILE)
+        current_value = all_configs[config]
+        new_value = ""
 
-            if current_value == new_value:
-                message = f'Config {config} is already set to {new_value}'
-            else:
-                message = f'Config {config} has been updated from {current_value} to {new_value} '
+        if config in constants.CONFIG_BOOL_OPTIONS:
+            new_value = common.str_to_bool(value)
+        else:
+            new_value = value
 
-            all_configs[config] = new_value
-            common.update_json(constants.CONFIG_FILE, all_configs)
+        if current_value == new_value:
+            message = f"Config {config} is already set to {new_value}"
+        else:
+            message = (
+                f"Config {config} has been updated from {current_value} to {new_value}"
+            )
 
-            return jsonify(message), 200, {'Content-Type': 'application/json'}
+        all_configs[config] = new_value
+        common.update_json(constants.CONFIG_FILE, all_configs)
+        logger.info(message)
+        return JSONResponse(content=message, status_code=200)
 
-        except Exception as e:
-            error = str(e)
-            return jsonify(error), 500, {'Content-Type': 'application/json'}
+    except Exception as e:
+        error = str(e)
+        logger.error(f"Error occurred: {error}")
+        raise HTTPException(status_code=500, detail=error)

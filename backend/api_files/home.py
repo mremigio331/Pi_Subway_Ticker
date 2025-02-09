@@ -1,18 +1,24 @@
-from flask import jsonify
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+router = APIRouter()
 
 
-def pi_api_home():
-    # curl -H "Content-Type: application/json" http://localhost:5000/
+@router.get("/", summary="Home Endpoint", response_description="Welcome message")
+async def pi_api_home():
     try:
         welcome_message = (
-            'Welcome to the locally hosted endpoint '
-            + 'for your Pi Subway Tracker')
-        return (
-            jsonify(welcome_message),
-            200,
-            {'Content-Type': 'application/json'}
+            "Welcome to the locally hosted endpoint " + "for your Pi Subway Tracker"
         )
+        logger.info("Welcome message sent successfully")
+        return JSONResponse(content={"message": welcome_message}, status_code=200)
 
     except Exception as e:
         error = str(e)
-        return jsonify(error), 500, {'Content-Type': 'application/json'}
+        logger.error(f"Error occurred: {error}")
+        raise HTTPException(status_code=500, detail=error)
