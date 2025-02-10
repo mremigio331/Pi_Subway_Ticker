@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
+import additional_py_files.common as common
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=common.get_log_level())
 logger = logging.getLogger(__name__)
 
 router = APIRouter()

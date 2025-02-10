@@ -8,6 +8,15 @@ import sys
 import os
 from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 from threading import Thread
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=common.get_log_level(),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("pi_subway_ticker")
 
 cwd = sys.argv[0]
 if "/" in cwd:
@@ -34,22 +43,18 @@ class nyc_subway:
         self.canvas = self.matrix.CreateFrameCanvas()
         self.station_pos = 65
         self.station_load_error = False
-        note = "Loaded Configs"
-        common.log_add(note, "Display", 2)
+        logger.info("[Display] Loaded configs.")
 
     def cycle(self):
 
         while True:
             cycle_check = common.config_load_v2()["cycle"]
-            note = "Cycle is set to " + str(cycle_check)
-            common.log_add(note, "System", 1)
+            logger.info(f"[System] Cycle is set to {str(cycle_check)}")
             if cycle_check:
                 self.cycle_station = sc.random_station_v2()
-                note = "Random station selected: " + self.cycle_station
-                common.log_add(note, "System", 1)
+                logger.info(f"[System] Random station selected: {self.cycle_station}")
             sleep_time = common.config_load_v2()["cycle_time"]
-            note = f"Cycle time set to {sleep_time} minutes."
-            common.log_add(note, "System", 1)
+            logger.info(f"[System] Cycle time set to {sleep_time} minutes.")
             time.sleep(int(sleep_time) * 60)
 
     def data_pull(self):
@@ -61,7 +66,7 @@ class nyc_subway:
                 trains.sort(key=lambda k: k["arrival"])
                 trains = trains[0:4]
                 for x in trains:
-                    common.log_add(str(x), "Display", 3)
+                    logger.debug(f"[Display] Train data: {str(x)}")
 
                 if len(trains) == 4:
                     self.train_1 = trains[0]["route"]
@@ -120,8 +125,9 @@ class nyc_subway:
                     self.train_4_direction = ""
 
                 else:
-                    note = f"{self.station} has no data, loading a new one"
-                    common.log_add(note, "System", 2)
+                    logger.info(
+                        f"[Display] {self.station} has no data, loading a new one"
+                    )
                     self.cycle_station = sc.random_station_v2()
 
                 self.loading = False
@@ -131,13 +137,13 @@ class nyc_subway:
             except Exception as error:
                 if data_pull_errors <= 2:
                     data_pull_errors += 1
-                    note = str(data_pull_errors) + " errors." + str(error)
-                    common.log_add(note, "Display", 1)
+                    logger.error(f"[Display] Error: {str(error)}")
                     self.general_error("Error Loading", str(data_pull_errors))
                     self.station_load()
                 if data_pull_errors == 3:
-                    note = str("Max amount of data_pull_errors reached. Shutting down")
-                    common.log_add(note, "Display", 1)
+                    logger.error(
+                        f"[Display] Max amount of data_pull_errors reached. Shutting down"
+                    )
                     self.run_status = False
 
     def display(self):
@@ -290,8 +296,7 @@ class nyc_subway:
                 time.sleep(5)
 
             except Exception as e:
-                note = f"Error saving all data to json: {str(e)}"
-                common.log_add(note, "System", 2)
+                logger.error(f"[System] Error saving all data to json: {str(e)}")
 
     def station_load(self):
         try:
@@ -306,8 +311,7 @@ class nyc_subway:
                 self.cycle_station = self.force_change_station_check
                 self.train_loading()
                 self.station_pos = 65
-                note = "New Station: " + self.station
-                common.log_add(note, "Display", 2)
+                logger.debug(f"[Display] New station: {self.station}")
                 all_configs = common.config_load_v2()
                 all_configs[constants.FORCE_CHANGE_STATION] = ""
                 common.update_json(constants.CONFIG_FILE, all_configs)
@@ -325,25 +329,18 @@ class nyc_subway:
                         self.station = new_station
                         self.previous_station = new_station
                         self.train_loading()
-                        self.station_pos = 65
-                        note = "New Station: " + self.station
-                        common.log_add(note, "Display", 2)
+                        logger.info(f"[Display] New station: {self.new_station}")
                     else:
                         self.station = new_station
-                        note = "No Station Change"
-                        common.log_add(note, "Display", 4)
-
+                        logger.debug(f"[Display] No station change: {self.station}")
                 else:
                     self.station_load_error = True
-                    note = (
-                        "ERROR: Station check result false, check spelling. Station in config: "
-                        + new_station
+                    logger.error(
+                        f"[Display] Station check result false. Check spelling or something bro. Station in configs: {new_station}"
                     )
-                    common.log_add(note, "Display", 1)
 
         except Exception as e:
-            note = f"ERROR: Station load: {str(e)}"
-            common.log_add(note, "Display", 1)
+            logger.error(f"[Display] Error loading station: {str(e)}")
 
     def subway_line_print(self, lines):
         line_draw = draw()
@@ -398,8 +395,7 @@ class nyc_subway:
         elif train == "":
             return graphics.Color(0, 0, 0)
         else:
-            note = train + "Color load error"
-            common.log_add(note, "Display", 1)
+            logger.error(f"[Display] {train} color load error")
             return graphics.Color(0, 0, 0)
 
     def train_display(self, train, train_time, direction, top):
@@ -557,8 +553,7 @@ class nyc_subway:
         self.next_four_trains = {}
         self.loading = True
         self.station = common.config_load_v2()["station"]
-        note = "Train Info Loading"
-        common.log_add(note, "Display", 4)
+        logger.debug("[Display] Train data loading")
 
 
 if __name__ == "__main__":

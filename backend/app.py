@@ -7,13 +7,15 @@ import sys
 import additional_py_files.constants as constants
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+import additional_py_files.common as common
+
 
 sys.dont_write_bytecode = True
 # Setup logging
 LOG_DIR = "/var/log/subway_ticker"
 LOG_FILE_API = os.path.join(LOG_DIR, "api.log")
 logger = logging.getLogger("trains_api")
-logger.setLevel(logging.INFO)
+logger.setLevel(common.get_log_level())
 
 
 def setup_logging():

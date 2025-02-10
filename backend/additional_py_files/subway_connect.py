@@ -7,32 +7,42 @@ import requests
 from datetime import datetime, timezone
 import additional_py_files.common as common
 import random
+import logging
 
 sys.path.append("/home/pi/.local/lib/python3.11/site-packages")
 
 from google.transit import gtfs_realtime_pb2
-
 from google.protobuf.json_format import MessageToDict
+
+# Configure logging
+logging.basicConfig(
+    level=common.get_log_level(),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("subway_connect")
 
 
 def api_pull(line, link):
-    note = "Conducting API pull of " + line
-    common.log_add(note, "API", 4)
-    feed = gtfs_realtime_pb2.FeedMessage()
-    response = requests.get(link)
-    feed.ParseFromString(response.content)
-    feed = MessageToDict(feed)
-    note = "Cleaning info for " + line
-    common.log_add(note, "API", 4)
-    clean_info = subway_cleanup(feed)
-    note = "Completed cleaning up " + line
-    common.log_add(note, "API", 4)
-    return clean_info
+    try:
+        logger.debug(f"Conducting API pull of {line}")
+        feed = gtfs_realtime_pb2.FeedMessage()
+        response = requests.get(link)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
+        feed.ParseFromString(response.content)
+        feed = MessageToDict(feed)
+        logger.debug(f"Cleaning info for {line}")
+        clean_info = subway_cleanup(feed)
+        logger.debug(f"Completed cleaning up {line}")
+        return clean_info
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error during API pull of {line}: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error during API pull of {line}: {e}")
 
 
 def all_train_data():
-    note = "Starting all train data"
-    common.log_add(note, "API", 3)
+    logger.debug("Starting all train data")
     api_links = [
         {
             "line": "ACE",
@@ -70,11 +80,16 @@ def all_train_data():
     all_train_info = []
     for x in api_links:
         trains = api_pull(x["line"], x["link"])
-        for i in trains:
-            all_train_info.append(i)
-        note = "Added information from the " + x["line"] + " line."
-        common.log_add(note, "API", 4)
-    data_dump(all_train_info)
+        if trains:
+            for i in trains:
+                all_train_info.append(i)
+            logger.debug(f"Added information from the {x['line']} line.")
+        else:
+            logger.warning(f"No data returned for the {x['line']} line.")
+    if all_train_info:
+        data_dump(all_train_info)
+    else:
+        logger.warning("No train data was collected from any line.")
     return all_train_info
 
 
@@ -86,54 +101,16 @@ def data_dump(train_info):
             data_dict.update({train_id: x})
         with open("data/subway_info.json", "w") as json_file:
             json.dump(data_dict, json_file, indent=4)
-        note = "Successfully dump train data to a json"
-        common.log_add(note, "API", 3)
+        logger.debug("Successfully dumped train data to a json")
     except BaseException:
-        note = "ERROR converting train data to a json"
-        common.log_add(note, "API", 1)
-
-
-def next_train_in(station, data):
-    train_stops = []
-    now = datetime.now()
-    note = "Time now: " + str(now)
-    common.log_add(note, "API", 3)
-    for x in data:
-        try:
-            for y in x["tripUpdate"]["stopTimeUpdate"]:
-                stop = y["stop_name"]
-                if stop == station:
-                    route = x["tripUpdate"]["trip"]["routeId"]
-                    tripID = x["tripUpdate"]["trip"]["tripId"]
-                    final_dest = x["tripUpdate"]["stopTimeUpdate"][-1]["stop_name"]
-                    arrival_time = datetime.fromtimestamp(int(y["arrival"]["time"]))
-                    difference = arrival_time - now
-                    arrival_time = int(difference.total_seconds() / 60)
-                    if arrival_time < 0:
-                        pass
-                    else:
-                        route_info = {
-                            "route": route,
-                            "tripId": tripID,
-                            "final_dest": final_dest,
-                            "arrival": arrival_time,
-                            "station_info": y,
-                        }
-                        train_stops.append(route_info)
-        except BaseException:
-            pass
-    train_stops.sort(key=lambda k: k["arrival"])
-    note = "Next train in complete"
-    common.log_add(note, "API", 3)
-    return train_stops
+        logger.error("ERROR converting train data to a json")
 
 
 def next_train_in_v2(station, data):
     station_object = common.build_station_element(station)
     train_stops = []
     now = datetime.now()
-    note = "Time now: " + str(now)
-    common.log_add(note, "API", 3)
+    logger.debug(f"Time now: {now}")
     for x in data:
         try:
             for y in x["tripUpdate"]["stopTimeUpdate"]:
@@ -163,16 +140,8 @@ def next_train_in_v2(station, data):
         except BaseException:
             pass
     train_stops.sort(key=lambda k: k["arrival"])
-    note = "Next train in complete"
-    common.log_add(note, "API", 3)
+    logger.debug("Next train in complete")
     return train_stops
-
-
-def random_station():
-    with open("data/stations.txt") as f:
-        stations = [line.strip() for line in f]
-    station = random.choice(stations)
-    return station
 
 
 def random_station_v2():
