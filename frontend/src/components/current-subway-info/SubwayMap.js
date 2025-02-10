@@ -27,7 +27,6 @@ export const SubwayMap = ({ currentStation, currentCenterMap, mapInitialized, se
         };
         pushNotification(message);
         const response = await forceUpdateCurrentStation(station);
-        console.log(response);
         if (response.status === 200 || response.status === 204) {
             message.content = response.data;
             message.type = NotificationConstants.SUCCESS;

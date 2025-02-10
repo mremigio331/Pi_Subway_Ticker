@@ -10,7 +10,6 @@ export default () => {
     const { dismissNotification, pushNotification, modifyNotificationContent } = getNotificationsContext();
 
     const { apiCheckState, dispatch } = useApiCheck();
-    console.log(apiCheckState);
 
     const handlePageClick = (event) => {
         event.preventDefault();
@@ -23,7 +22,6 @@ export default () => {
     };
 
     const handleAPIReset = (event) => {
-        console.log('CLICKED ME');
         dispatch({ type: RESET_RETRIES });
         const message_id = uuidv4();
         const message = {

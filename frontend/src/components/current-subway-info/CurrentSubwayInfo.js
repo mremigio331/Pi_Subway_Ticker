@@ -59,7 +59,6 @@ export const CurrentSubwayInfo = () => {
         refetchInterval: apiCheckState.apiRetries < 10 ? 6000 : false,
         initialData: LOADING_INFO,
     });
-    console.log(trainItems);
 
     useEffect(() => {
         const intervalId = setInterval(() => {

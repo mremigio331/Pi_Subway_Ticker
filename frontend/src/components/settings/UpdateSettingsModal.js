@@ -6,7 +6,6 @@ import { getNotificationsContext, NotificationConstants } from '../../services/N
 import { v4 as uuidv4 } from 'uuid';
 
 export const UpdateSettingsModal = ({ settingsState, settingsDispatch, configs, refetch }) => {
-    console.log('settingsState', settingsState);
     const selectedIndex = configs.findIndex((config) => config.type === settingsState.selectedSetting);
     const [value, setValue] = useState('');
     const [selectedOption, setSelectedOption] = useState({});
