@@ -86,18 +86,15 @@ export const getAllStations = async () => {
 };
 
 export const updateConfig = async (configType, value) => {
-    const requestURL = `http://${apiEndpoint}:5000/configs/${configType}`;
+    const requestURL = `http://${apiEndpoint}:5000/configs/update_specific_config`;
+
+    const data = {
+        config: configType,
+        value: value.toString()
+    };
 
     try {
-        const response = await axios.put(
-            requestURL,
-            {},
-            {
-                headers: {
-                    value: value.toString(),
-                },
-            },
-        );
+        const response = await axios.put(requestURL, data);
         return response;
     } catch (error) {
         if (error.response && error.response.status >= 400 && error.response.status < 600) {
@@ -133,16 +130,16 @@ export const updateEnabledStation = async (station, enabled) => {
     }
 };
 
-export const updateCurrentStation = async (station) => {
-    const requestURL = `http://${apiEndpoint}:5000/trains/current_station/update`;
+export const forceUpdateCurrentStation = async (station) => {
+    const requestURL = `http://${apiEndpoint}:5000/stations/force_change_station`;
 
-    let headers = {};
-
-    headers['force_change_station'] = station;
-    headers['cycle'] = 'true';
+    const data = {
+        force_change_station: station,
+        cycle: true
+    };
 
     try {
-        const response = await axios.put(requestURL, {}, { headers });
+        const response = await axios.put(requestURL, data);
         return response;
     } catch (error) {
         console.error(error);
