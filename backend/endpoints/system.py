@@ -1,6 +1,6 @@
 import logging
 import subprocess
-from fastapi import APIRouter
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 import additional_py_files.common as common
 
@@ -49,10 +49,32 @@ async def system_update():
     # content_type='text/event-stream')
 
 
-@router.post(
-    "/pi_update", summary="Pi Update", response_description="Update the Raspberry Pi"
-)
-async def pi_update():
-    return_dict = {"message": "Not quite ready to update the pi yet"}
-    logger.info("Pi update endpoint called")
-    return JSONResponse(content=return_dict, status_code=501)
+@router.websocket("/pi_update")
+async def pi_update(websocket: WebSocket):
+    await websocket.accept()
+    logger.info("Pi update websocket connection established")
+    try:
+        process = subprocess.Popen(
+            ["sudo", "apt", "update", "&&", "sudo", "apt", "upgrade", "-y"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            shell=True,
+        )
+
+        for line in iter(process.stdout.readline, ""):
+            await websocket.send_text(line)
+        process.stdout.close()
+        return_code = process.wait()
+        if return_code != 0:
+            error_message = process.stderr.read()
+            await websocket.send_text(f"Error: {error_message}")
+            process.stderr.close()
+        await websocket.close()
+    except WebSocketDisconnect:
+        logger.info("Pi update websocket connection closed")
+    except Exception as e:
+        error = str(e)
+        logger.error(f"Error occurred: {error}")
+        await websocket.send_text(f"Error: {error}")
+        await websocket.close()

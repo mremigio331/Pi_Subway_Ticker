@@ -13,7 +13,7 @@ install_system_packages() {
     # Install required packages
     sudo apt install -y python3-pip libatlas-base-dev python3-protobuf python3-pandas python3-requests python3-flask python3-flask-cors avahi-daemon git python3-dev python3-pillow iptables-persistent
     sudo apt install -y python3-flasgger python3-pip python3-botocore python3-boto3 screen default-jdk wget curl unzip
-    sudo pip3 install fastapi uvicorn black watchdog --break-system-packages
+    sudo pip3 install fastapi uvicorn black watchdog websockets --break-system-packages
     export PYTHONDONTWRITEBYTECODE=1
     echo "System packages installed."
 }
