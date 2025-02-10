@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllStations, updateConfig, updateCurrentStation } from '../../services/API';
+import { getAllStations, updateConfig, forceUpdateCurrentStation } from '../../services/API';
 import { Button, Box, Header, Modal, Select, SpaceBetween, Textarea, TextContent } from '@cloudscape-design/components';
 import { useQuery } from '@tanstack/react-query';
 import { getNotificationsContext, NotificationConstants } from '../../services/Notifications';

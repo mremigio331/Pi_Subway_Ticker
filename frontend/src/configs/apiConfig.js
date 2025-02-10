@@ -1,2 +1,2 @@
-//created from setup
-export const apiEndpoint = 'devpi.local';
+//edited from initial setup
+export const apiEndpoint = 'trains.local'

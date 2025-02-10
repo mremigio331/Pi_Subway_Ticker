@@ -6,7 +6,7 @@ import selectedMarker from '../../assests/MapMarkers/MTA_Selected.png';
 import notSelectedMarker from '../../assests/MapMarkers/MTA_Not_Selected.png';
 import { TrainLogos } from '../../utility/SubwayLogos';
 import { AllStations } from '../../constants/SubwayStations';
-import { updateCurrentStation } from '../../services/API';
+import { forceUpdateCurrentStation } from '../../services/API';
 import { getNotificationsContext, NotificationConstants } from '../../services/Notifications';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -26,7 +26,7 @@ export const SubwayMap = ({ currentStation, currentCenterMap, mapInitialized, se
             loading: true,
         };
         pushNotification(message);
-        const response = await updateCurrentStation(station);
+        const response = await forceUpdateCurrentStation(station);
         console.log(response);
         if (response.status === 200 || response.status === 204) {
             message.content = response.data;

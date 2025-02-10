@@ -7,21 +7,19 @@ cd ~/Pi_Subway_Ticker/
 
 board_command () {
     echo "Starting LED Board"
-    echo "" > logs/board_logs.log  # Clear the log
-    python3 backend/pi_subway_ticker.py >> logs/board_logs.log 2>&1
+    screen -dmS board python3 backend/pi_subway_ticker.py
 }
 
 api_command () {
     echo "Starting API"
-    echo "" > logs/api_logs.log  # Clear the log
-    python3 backend/pi_local_api.py >> logs/api_logs.log 2>&1
+    cd backend
+    screen -dmS api python3 app.py
 }
 
 website_command () {
     echo "Starting Local Server"
-    echo "" > logs/website_logs.log  # Clear the log
     cd frontend
-    npm run dev >> ../logs/website_logs.log 2>&1
+    screen -dmS website npm run dev
 }
 
 log_size_check () {
@@ -47,7 +45,7 @@ check_log_size() {
 
 cleanup() {
     echo "Cleaning up..."
-    kill $(jobs -p)  # Kill all background processes
+    pkill screen
     exit 0
 }
 

@@ -8,7 +8,6 @@ import additional_py_files.constants as constants
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-
 sys.dont_write_bytecode = True
 # Setup logging
 LOG_DIR = "/var/log/subway_ticker"
@@ -61,6 +60,7 @@ async def log_request_info(request: Request, call_next):
     client_host = request.client.host
     request_method = request.method
     request_url = request.url.path
+    headers = dict(request.headers)
 
     body = await request.body()
     payload = body.decode("utf-8") if body else "{}"
@@ -71,6 +71,12 @@ async def log_request_info(request: Request, call_next):
     )
 
     response = await call_next(request)
+
+    logger.info(
+        f"Response for {request_method} {request_url} from {client_host}: "
+        f"Status code: {response.status_code}"
+    )
+
     return response
 
 

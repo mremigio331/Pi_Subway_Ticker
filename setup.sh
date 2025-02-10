@@ -12,7 +12,7 @@ install_system_packages() {
     echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
     # Install required packages
     sudo apt install -y python3-pip libatlas-base-dev python3-protobuf python3-pandas python3-requests python3-flask python3-flask-cors avahi-daemon git python3-dev python3-pillow iptables-persistent
-    sudo apt install -y  python3-flasgger python3-pip python3-botocore python3-boto3 screen default-jdk wget curl unzip
+    sudo apt install -y python3-flasgger python3-pip python3-botocore python3-boto3 screen default-jdk wget curl unzip
     sudo pip3 install fastapi uvicorn black watchdog --break-system-packages
     echo "System packages installed."
 }
@@ -134,6 +134,43 @@ change_ownership() {
     echo "Ownership changed."
 }
 
+# Create log directory and set permissions
+create_log_directory() {
+    local log_dir=$1
+    echo "Creating log directory at $log_dir..."
+    sudo mkdir -p $log_dir
+    echo "Setting permissions for user $USER..."
+    sudo chown $USER:$USER $log_dir
+    sudo chmod 750 $log_dir
+}
+
+# Create logrotate configuration
+create_logrotate_config() {
+    local log_file=$1
+    local logrotate_config="/etc/logrotate.d/$(basename $log_file)"
+    echo "Creating logrotate configuration for $log_file at $logrotate_config..."
+    sudo bash -c "cat > $logrotate_config" <<EOL
+$log_file {
+    daily
+    missingok
+    rotate 7
+    compress
+    delaycompress
+    notifempty
+    create 640 $USER $USER
+}
+EOL
+}
+
+# Setup log files
+setup_log_files() {
+    LOG_DIR="/var/log/subway_ticker"
+    create_log_directory "$LOG_DIR"
+    create_logrotate_config "$LOG_DIR/website.log"
+    create_logrotate_config "$LOG_DIR/api.log"
+    create_logrotate_config "$LOG_DIR/device.log"
+}
+
 # Execute all setup functions in the optimal order
 install_system_packages
 install_node
@@ -143,5 +180,6 @@ setup_port_forwarding
 change_ownership
 install_frontend_packages
 set_executable_permissions
-add_cron_job
-reboot_system
+setup_log_files
+# add_cron_job
+# reboot_system

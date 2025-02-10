@@ -12,18 +12,18 @@ def get_all_routes(app):
 
     # Configs
     # Get and Put
-    app.include_router(configs_router, tags=["Configs"])
+    app.include_router(configs_router, prefix="/configs", tags=["Configs"])
 
     # Stations
     # Get and Put
-    app.include_router(stations_router, tags=["Stations"])
+    app.include_router(stations_router, prefix="/stations", tags=["Stations"])
 
     # Trains
     # Get and Put
-    app.include_router(trains_router, tags=["Trains"])
+    app.include_router(trains_router, prefix="/trains", tags=["Trains"])
 
     # System
     # Post
-    app.include_router(system_router, tags=["System"])
+    app.include_router(system_router, prefix="/system", tags=["System"])
 
     return app

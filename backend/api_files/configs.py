@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/config",
+    "/",
     summary="Get All Configs",
     response_description="List of all configurations",
 )
@@ -30,7 +30,7 @@ async def get_all_configs():
 
 
 @router.get(
-    "/configs/{config}",
+    "/{config}",
     summary="Get Specific Config",
     response_description="Get a specific configuration",
 )
@@ -47,7 +47,7 @@ async def specific_config(config: str):
 
 
 @router.put(
-    "/configs/{config}",
+    "/{config}",
     summary="Update Specific Config",
     response_description="Update a specific configuration",
 )
