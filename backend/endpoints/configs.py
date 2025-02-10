@@ -1,6 +1,6 @@
 import additional_py_files.constants as constants
 import additional_py_files.common as common
-from api_files.config_models import UpdateConfigModel
+from api_models.config_models import UpdateConfigModel
 
 from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi.responses import JSONResponse

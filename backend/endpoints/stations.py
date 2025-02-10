@@ -1,6 +1,6 @@
 import additional_py_files.constants as constants
 import additional_py_files.common as common
-from api_files.station_models import UpdateStationModel, ForceChangeStationModel
+from api_models.station_models import UpdateStationModel, ForceChangeStationModel
 
 from fastapi import APIRouter, HTTPException, Request, Query
 from fastapi.responses import JSONResponse

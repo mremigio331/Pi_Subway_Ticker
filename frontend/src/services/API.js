@@ -90,7 +90,7 @@ export const updateConfig = async (configType, value) => {
 
     const data = {
         config: configType,
-        value: value.toString()
+        value: value.toString(),
     };
 
     try {
@@ -135,7 +135,7 @@ export const forceUpdateCurrentStation = async (station) => {
 
     const data = {
         force_change_station: station,
-        cycle: true
+        cycle: true,
     };
 
     try {
