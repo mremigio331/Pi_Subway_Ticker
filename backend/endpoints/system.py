@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+import logging
+import subprocess
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 import additional_py_files.common as common
-import logging
 
 # Configure logging
 logging.basicConfig(level=common.get_log_level())
@@ -16,18 +17,13 @@ router = APIRouter()
     response_description="Restart the system",
 )
 async def system_restart():
-    return_dict = {"message": "Not quite ready to restart yet"}
-    logger.info("System restart endpoint called")
-    return JSONResponse(content=return_dict, status_code=501)
-
-    # try:
-    #     subprocess.run(['sudo', 'reboot'])
-    #     logger.info("Raspberry Pi is restarting...")
-    #     return JSONResponse(content={'message': 'Raspberry Pi is restarting...'}, status_code=200)
-    # except Exception as e:
-    #     error = str(e)
-    #     logger.error(f"Error occurred: {error}")
-    #     return JSONResponse(content={'error': error}, status_code=500)
+    try:
+        logger.info("Raspberry Pi is restarting...")
+        subprocess.run(["sudo", "reboot"])
+    except Exception as e:
+        error = str(e)
+        logger.error(f"Error occurred: {error}")
+        return JSONResponse(content={"error": error}, status_code=500)
 
 
 @router.post(
